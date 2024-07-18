@@ -53,4 +53,6 @@ public class VehicleService {
     public List<Vehicle> getAvailableVehicles() {
         return vehicleRepository.findByStatus(Status.AVAILABLE);
     }
+
+
 }

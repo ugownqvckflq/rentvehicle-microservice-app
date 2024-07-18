@@ -3,6 +3,7 @@ package com.vehicle.vehicle_microservice.controller;
 
 import com.vehicle.vehicle_microservice.entity.Car;
 import com.vehicle.vehicle_microservice.entity.Scooter;
+import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
 import com.vehicle.vehicle_microservice.services.VehicleService;
@@ -84,6 +85,14 @@ public class VehicleController {
     public ResponseEntity<List<Vehicle>> getAvailableVehicles() {
         List<Vehicle> availableVehicles = vehicleService.getAvailableVehicles();
         return ResponseEntity.ok(availableVehicles);
+    }
+
+    @PostMapping("/set-status/{id}/{var}")
+    public ResponseEntity<Vehicle> setVehicleStatusById(@PathVariable Long id,@PathVariable String var) {
+        Vehicle vehicle = vehicleService.getById(id).orElseThrow();
+        vehicle.setStatus(Status.UNAVAILABLE);
+        vehicleService.saveVehicle(vehicle);
+        return ResponseEntity.ok(vehicle);
     }
 
     @ExceptionHandler(DuplicateLicensePlateException.class)
