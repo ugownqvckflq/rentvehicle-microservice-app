@@ -11,7 +11,7 @@ spring:
 
 jwt:
   secret: jklasdjasui123kjklasjdioasipoksjkladjiosau23u09123jklajsdjaiosdhhjk12h3jhkasd
-  expirationMs: 60000
+  expirationMs: 6000000
 
 server:
   port: 8081

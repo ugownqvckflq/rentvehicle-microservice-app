@@ -11,18 +11,32 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class VehicleServiceClient {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate; //TODO переделать на WebClient либо на Openfeign
 
     @Value("${vehicle.service.url}")
     private String vehicleServiceUrl;
 
+    public VehicleServiceClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public VehicleDto getVehicleByLicensePlate(String licensePlate) {
         try {
-            return restTemplate.getForObject(vehicleServiceUrl + licensePlate, VehicleDto.class);
+            return restTemplate.getForObject(vehicleServiceUrl + "/plate/" + licensePlate, VehicleDto.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 return null;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public void setVehicleStatus(Long id, String status) { //TODO помогите...
+        try {
+             restTemplate.postForObject(vehicleServiceUrl + "/set-status/" + id + "/" + status, null, VehicleDto.class);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
             } else {
                 throw e;
             }

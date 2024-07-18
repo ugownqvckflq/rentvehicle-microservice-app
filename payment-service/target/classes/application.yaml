@@ -1,0 +1,22 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/butilka
+    username: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8084
+
+encryption:
+  password: iasudiashdjkhasjdkhasiudhsakjdhjaskdhasiudhsiajdhkjsdhj
+  salt: jkhasdjkhasjkdkasjd
+
+jwt:
+  secret: jklasdjasui123kjklasjdioasipoksjkladjiosau23u09123jklajsdjaiosdhhjk12h3jhkasd

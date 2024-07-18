@@ -1,31 +1,32 @@
 package com.project.rental_microservice.controller;
 
 import com.project.rental_microservice.entity.Rental;
-import com.project.rental_microservice.entity.RentalRequest;
-import com.project.rental_microservice.entity.ReturnRequest;
+import com.project.rental_microservice.dto.RentalRequest;
+import com.project.rental_microservice.dto.ReturnRequest;
 import com.project.rental_microservice.service.RentalService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rentals")
+@RequiredArgsConstructor
 public class RentalController {
 
     private final RentalService rentalService;
 
-    public RentalController(RentalService rentalService) {
-        this.rentalService = rentalService;
+    @PostMapping("/rent")
+    public ResponseEntity<Rental> rentVehicle(HttpServletRequest request, @RequestBody RentalRequest rentalRequest) {
+        Rental rental = rentalService.rentVehicle(request, rentalRequest);
+        return ResponseEntity.ok(rental);
     }
 
-    @PostMapping("/rent")
-    public ResponseEntity<Rental> rentVehicle(@RequestBody RentalRequest rentalRequest) {
-        return ResponseEntity.ok(rentalService.rentVehicle(rentalRequest));
-    }
 
     @PostMapping("/return")
     public ResponseEntity<Rental> returnVehicle(@RequestBody ReturnRequest returnRequest) {
-        return ResponseEntity.ok(rentalService.returnVehicle(returnRequest));
+        Rental rental = rentalService.returnVehicle(returnRequest);
+        return ResponseEntity.ok(rental);
     }
 
     @GetMapping("/{rentalId}")

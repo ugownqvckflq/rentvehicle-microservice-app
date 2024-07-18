@@ -6,4 +6,5 @@ import lombok.Data;
 public class VehicleDto {
     private Long id;
     private String licensePlate;
+    private String status;
 }
