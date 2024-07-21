@@ -2,83 +2,89 @@ package com.project.rental_microservice.service;
 
 import com.project.rental_microservice.dto.VehicleDto;
 import com.project.rental_microservice.entity.Rental;
-import com.project.rental_microservice.entity.RentalRequest;
-import com.project.rental_microservice.entity.ReturnRequest;
+import com.project.rental_microservice.dto.RentalRequest;
+import com.project.rental_microservice.dto.ReturnRequest;
 import com.project.rental_microservice.repository.RentalRepository;
 import com.project.rental_microservice.restTemplate.service.VehicleServiceClient;
-import com.vehicle.vehicle_microservice.entity.Vehicle;
-import com.vehicle.vehicle_microservice.repository.VehicleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.project.rental_microservice.security.JwtTokenUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class RentalServiceImpl implements RentalService {
 
-    @Autowired
-    private RentalRepository rentalRepository;
+    private final RentalRepository rentalRepository;
+    private final VehicleServiceClient vehicleServiceClient;
+    private final KafkaProducerService kafkaProducerService;
 
-    @Autowired
-    private VehicleServiceClient vehicleServiceClient;
 
+    //TODO почему то не работает изменение статуса транспорта
     @Override
-    public Rental rentVehicle(RentalRequest rentalRequest) {
+    public Rental rentVehicle(HttpServletRequest request, RentalRequest rentalRequest) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            throw new RuntimeException("User ID is missing in request");
+        }
+
         VehicleDto vehicle = vehicleServiceClient.getVehicleByLicensePlate(rentalRequest.getLicensePlate());
+
+        if (vehicle == null) {
+            throw new RuntimeException("Vehicle not found with license plate: " + rentalRequest.getLicensePlate());
+        }
+        vehicleServiceClient.setVehicleStatus(vehicle.getId(), "UNAVAILABLE");
+
         if (vehicle != null) {
             Rental rental = new Rental();
-            rental.setUserId(rentalRequest.getUserId());
+            rental.setUserId(userId);
             rental.setVehicleId(vehicle.getId());
             rental.setStartTime(LocalDateTime.now());
+            Rental savedRental = rentalRepository.save(rental);
 
-            // Сохранение в базу данных
-            rental = rentalRepository.save(rental);
 
-            // Вычисление продолжительности и обновление объекта
-            rental.setDuration(calculateDuration(rental.getStartTime(), rental.getEndTime()));
+            // Отправить сообщение в Kafka о новой аренде
+            kafkaProducerService.sendMessage(savedRental);
 
-            return rental;
+            return savedRental;
         } else {
             throw new RuntimeException("Vehicle not found with license plate: " + rentalRequest.getLicensePlate());
         }
     }
 
-
     @Override
     public Rental returnVehicle(ReturnRequest returnRequest) {
-        Optional<Rental> rentalOpt = rentalRepository.findById(returnRequest.getRentalId());
+        VehicleDto vehicle = vehicleServiceClient.getVehicleByLicensePlate(returnRequest.getLicensePlate());
+
+        if (vehicle == null) {
+            throw new RuntimeException("Vehicle not found with license plate: " + returnRequest.getLicensePlate());
+        }
+        vehicleServiceClient.setVehicleStatus(vehicle.getId(), "AVAILABLE");
+
+        Optional<Rental> rentalOpt = rentalRepository.findByVehicleIdAndEndTimeIsNull(vehicle.getId());
         if (rentalOpt.isPresent()) {
             Rental rental = rentalOpt.get();
             rental.setEndTime(LocalDateTime.now());
+            rental.setDuration(String.valueOf(Duration.between(rental.getStartTime(), rental.getEndTime())));
+            Rental updatedRental = rentalRepository.save(rental);
 
-            // Сохранение в базу данных
-            rental = rentalRepository.save(rental);
+            // Отправить сообщение в Kafka о возврате транспорта
+            kafkaProducerService.sendMessage(updatedRental);
 
-            // Вычисление продолжительности и обновление объекта
-            rental.setDuration(calculateDuration(rental.getStartTime(), rental.getEndTime()));
-
-            return rental;
+            return updatedRental;
         } else {
-            throw new RuntimeException("Rental not found with id: " + returnRequest.getRentalId());
+            throw new RuntimeException("Rental not found for vehicle with license plate: " + returnRequest.getLicensePlate());
         }
-    }
-
-    private String calculateDuration(LocalDateTime startTime, LocalDateTime endTime) {
-        if (startTime != null && endTime != null) {
-            long seconds = ChronoUnit.SECONDS.between(startTime, endTime);
-            long hours = seconds / 3600;
-            long minutes = (seconds % 3600) / 60;
-            long secs = seconds % 60;
-            return String.format("%02d:%02d:%02d", hours, minutes, secs);
-        }
-        return null;
     }
 
     @Override
     public Rental getRentalById(Long rentalId) {
-        return rentalRepository.findById(rentalId).orElseThrow(() -> new RuntimeException("Rental not found with id: " + rentalId));
+        return rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new RuntimeException("Rental not found with id: " + rentalId));
     }
 }

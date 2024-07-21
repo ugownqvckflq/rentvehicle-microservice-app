@@ -16,8 +16,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -33,18 +35,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = getJwtFromRequest(request);
 
         if (StringUtils.hasText(jwt) && validateToken(jwt)) {
-            Long userId = jwtTokenUtil.getUserIdFromToken(jwt); // Извлечение userId из токена
-
             String username = jwtTokenUtil.getUserNameFromJwtToken(jwt);
+            Claims claims = jwtTokenUtil.getAllClaimsFromToken(jwt);
 
-            UserDetails userDetails = User.withUsername(username).password("").authorities("USER").build();
+            // Извлечение ролей из токена
+            @SuppressWarnings("unchecked")
+            List<String> roles = (List<String>) claims.get("roles");
+
+            UserDetails userDetails = User.withUsername(username)
+                    .password("")  // Пароль не используется для аутентификации
+                    .authorities(roles.stream().map(SimpleGrantedAuthority::new).toList())
+                    .build();
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            request.setAttribute("userId", userId); // Установка userId в атрибуты запроса
+            request.setAttribute("userId", jwtTokenUtil.getUserIdFromToken(jwt)); // Установка userId в атрибуты запроса
         }
 
         filterChain.doFilter(request, response);

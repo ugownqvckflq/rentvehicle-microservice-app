@@ -1,6 +1,8 @@
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
   application:
-    name: vehicle-service
+    name: rental-service
   datasource:
     url: jdbc:postgresql://localhost:5432/butilka
     username: postgres
@@ -8,9 +10,18 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:/db_changelog/db.changelog-master.xml
+    url: jdbc:postgresql://localhost:5432/butilka
+    user: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
 server:
   port: 8083
 
 vehicle:
   service:
-    url: http://localhost:8082/vehicles/plate/
+    url: http://localhost:8082/vehicles
+
+jwt:
+  secret: jklasdjasui123kjklasjdioasipoksjkladjiosau23u09123jklajsdjaiosdhhjk12h3jhkasd

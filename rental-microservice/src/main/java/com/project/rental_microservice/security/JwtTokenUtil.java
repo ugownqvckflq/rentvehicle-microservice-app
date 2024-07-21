@@ -25,10 +25,17 @@ public class JwtTokenUtil {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 
+    public String getUserRoleFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        Object role = claims.get("roles");
+        if (role != null) {
+            return role.toString();
+        }
+        return null;
+    }
 
 
-
-    private Claims getAllClaimsFromToken(String token) {
+    public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
