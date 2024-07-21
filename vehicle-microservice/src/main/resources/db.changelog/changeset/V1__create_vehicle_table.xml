@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Nick">
+        <createTable tableName="vehicle">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="vehicle_type" type="VARCHAR(50)"/>
+            <column name="license_plate" type="VARCHAR(50)"/>
+            <column name="model" type="VARCHAR(100)"/>
+            <column name="speed" type="DECIMAL(5,2)"/>
+            <column name="status" type="VARCHAR(20)"/>
+            <column name="fuel_level" type="DECIMAL(5,2)"/>
+            <column name="horse_power" type="INT"/>
+            <column name="number_of_doors" type="INT"/>
+            <column name="battery_level" type="DECIMAL(5,2)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

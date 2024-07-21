@@ -8,7 +8,12 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-
+  liquibase:
+    change-log: classpath:/db.changelog/vehicle/db.changelog-master.xml
+    url: jdbc:postgresql://localhost:5432/butilka
+    user: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
 server:
   port: 8082
 
