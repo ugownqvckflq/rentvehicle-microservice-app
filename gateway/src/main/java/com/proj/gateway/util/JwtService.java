@@ -1,0 +1,62 @@
+package com.proj.gateway.util;
+
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+import java.util.Date;
+
+@Service
+public class JwtService {
+
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+
+
+    public Claims validateToken(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new RuntimeException("Invalid JWT Token", e);
+        }
+    }
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = getAllClaims(token);
+        // Предполагаем, что userId хранится в claim с ключом "userId"
+        Object userIdClaim = claims.get("userId");
+        if (userIdClaim instanceof Number) {
+            return ((Number) userIdClaim).longValue();
+        } else {
+            throw new JwtException("User ID claim is missing or invalid");
+        }
+    }
+
+    public Claims getAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
+
+
+}
