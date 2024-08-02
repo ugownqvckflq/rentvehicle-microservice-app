@@ -1,0 +1,13 @@
+com\vehicle\vehicle_microservice\entity\Car.class
+com\vehicle\vehicle_microservice\repository\VehicleRepository.class
+com\vehicle\vehicle_microservice\exceptions\DuplicateLicensePlateException.class
+com\vehicle\vehicle_microservice\VehicleMicroserviceApplication.class
+com\vehicle\vehicle_microservice\entity\Status.class
+com\vehicle\vehicle_microservice\security\JwtAuthenticationFilter.class
+com\vehicle\vehicle_microservice\security\JwtAuthenticationToken.class
+com\vehicle\vehicle_microservice\security\SecurityConfig.class
+com\vehicle\vehicle_microservice\controller\VehicleController.class
+com\vehicle\vehicle_microservice\services\VehicleService.class
+com\vehicle\vehicle_microservice\entity\Vehicle.class
+com\vehicle\vehicle_microservice\entity\Scooter.class
+com\vehicle\vehicle_microservice\security\JwtUtils.class

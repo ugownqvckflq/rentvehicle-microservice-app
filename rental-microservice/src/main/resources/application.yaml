@@ -21,7 +21,13 @@ server:
 
 vehicle:
   service:
-    url: http://localhost:8082/vehicles
+    url: http://localhost:8082
 
 jwt:
-  secret: jklasdjasui123kjklasjdioasipoksjkladjiosau23u09123jklajsdjaiosdhhjk12h3jhkasd
+  secret: jsuaiqlsmdjkalskdjkjahjdjsdyuakkajsjdhuasnbdjadyaysdhkasjdhjsdugjkksas
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

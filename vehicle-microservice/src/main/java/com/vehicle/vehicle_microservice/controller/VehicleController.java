@@ -1,13 +1,11 @@
 package com.vehicle.vehicle_microservice.controller;
 
 
-import com.vehicle.vehicle_microservice.entity.Car;
-import com.vehicle.vehicle_microservice.entity.Scooter;
-import com.vehicle.vehicle_microservice.entity.Status;
-import com.vehicle.vehicle_microservice.entity.Vehicle;
+import com.example.rolecheck.RoleCheck;
+import com.vehicle.vehicle_microservice.entity.*;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
 import com.vehicle.vehicle_microservice.services.VehicleService;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,17 +13,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 @RequestMapping("/vehicles")
 public class VehicleController {
 
-    @Autowired
-    private VehicleService vehicleService;
+    private final VehicleService vehicleService;
 
+
+    public VehicleController(VehicleService vehicleService) {
+        this.vehicleService = vehicleService;
+
+    }
+
+
+    //RoleCheck("ROLE_ADMIN") //доделать
     @GetMapping("/all")
-    public ResponseEntity<List<Vehicle>> getAllVehicles() {
-        List<Vehicle> vehicles = vehicleService.getAllVehicle();
-        return ResponseEntity.ok(vehicles);
+    public ResponseEntity<List<Vehicle>> getAllVehicles(@RequestHeader("X-User-Role") String userRole) {
+        // Log received user role
+        System.out.println("Received User Role: " + userRole);
+
+        if ("ROLE_ADMIN".equals(userRole)) {
+            List<Vehicle> vehicles = vehicleService.getAllVehicle();
+            return ResponseEntity.ok(vehicles);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @GetMapping("/{id}")
@@ -41,9 +54,15 @@ public class VehicleController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
-        vehicleService.deleteVehicle(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteVehicle(@RequestHeader("X-User-Role") String userRole, @PathVariable Long id) {
+
+        if ("ROLE_ADMIN".equals(userRole)) {
+            vehicleService.deleteVehicle(id);
+            return ResponseEntity.noContent().build();
+        }else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
     }
 
     @GetMapping("/plate/{plate}")
@@ -53,7 +72,11 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long id, @RequestBody Vehicle vehicleDetails) {
+    public ResponseEntity<Vehicle> updateVehicle(@RequestHeader("X-User-Role") String userRole, @PathVariable Long id, @RequestBody Vehicle vehicleDetails) {
+        if (!"ROLE_ADMIN".equals(userRole)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         Optional<Vehicle> vehicleOptional = vehicleService.getById(id);
         if (vehicleOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -65,15 +88,11 @@ public class VehicleController {
         vehicle.setStatus(vehicleDetails.getStatus());
         vehicle.setLicensePlate(vehicleDetails.getLicensePlate());
 
-        if (vehicle instanceof Car && vehicleDetails instanceof Car) {
-            Car car = (Car) vehicle;
-            Car carDetails = (Car) vehicleDetails;
+        if (vehicle instanceof Car car && vehicleDetails instanceof Car carDetails) {
             car.setFuelLevel(carDetails.getFuelLevel());
             car.setHorsePower(carDetails.getHorsePower());
             car.setNumberOfDoors(carDetails.getNumberOfDoors());
-        } else if (vehicle instanceof Scooter && vehicleDetails instanceof Scooter) {
-            Scooter scooter = (Scooter) vehicle;
-            Scooter scooterDetails = (Scooter) vehicleDetails;
+        } else if (vehicle instanceof Scooter scooter && vehicleDetails instanceof Scooter scooterDetails) {
             scooter.setBatteryLevel(scooterDetails.getBatteryLevel());
         }
 
@@ -87,12 +106,22 @@ public class VehicleController {
         return ResponseEntity.ok(availableVehicles);
     }
 
-    @PostMapping("/set-status/{id}/{var}")
-    public ResponseEntity<Vehicle> setVehicleStatusById(@PathVariable Long id,@PathVariable String var) {
+    @PostMapping("/set-status/{id}/{status}")
+    public ResponseEntity<Vehicle> setVehicleStatusById(@PathVariable Long id, @PathVariable Status status) {
+
         Vehicle vehicle = vehicleService.getById(id).orElseThrow();
-        vehicle.setStatus(Status.UNAVAILABLE);
+        vehicle.setStatus(status);
         vehicleService.saveVehicle(vehicle);
         return ResponseEntity.ok(vehicle);
+    }
+
+    @GetMapping("/search/{model}")
+    public ResponseEntity<List<Vehicle>> searchVehiclesByModel(@PathVariable String model) {
+        List<Vehicle> vehicles = vehicleService.searchVehiclesByModel(model);
+        if (vehicles.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(vehicles);
     }
 
     @ExceptionHandler(DuplicateLicensePlateException.class)

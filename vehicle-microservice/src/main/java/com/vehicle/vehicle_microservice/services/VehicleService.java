@@ -54,5 +54,8 @@ public class VehicleService {
         return vehicleRepository.findByStatus(Status.AVAILABLE);
     }
 
+    public List<Vehicle> searchVehiclesByModel(String model) {
+        return vehicleRepository.findByModel(model);
+    }
 
 }

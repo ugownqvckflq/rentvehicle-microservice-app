@@ -38,17 +38,6 @@ public class Rental {
     @Transient // Поле не будет сохраняться в базе данных
     private String duration;
 
-    public String getDuration() {
-        if (startTime != null && endTime != null) {
-            long seconds = ChronoUnit.SECONDS.between(startTime, endTime);
-            long hours = seconds / 3600;
-            long minutes = (seconds % 3600) / 60;
-            long secs = seconds % 60;
-            return String.format("%02d:%02d:%02d", hours, minutes, secs);
-        }
-        return null;
-    }
-
     public void setDuration(String duration) {
         this.duration = duration;
     }
