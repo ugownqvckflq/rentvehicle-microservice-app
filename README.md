@@ -1,4 +1,4 @@
-<h1 align="center">HotelLand</h1>
+<h1 align="center">RentRide</h1>
 <h3 align="center">Содержание:</h3>
 1. Описание приложения и функционала<br/>
 2. Архитектура приложения<br/>
