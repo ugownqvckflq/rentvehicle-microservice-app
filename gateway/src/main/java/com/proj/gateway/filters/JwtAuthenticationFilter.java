@@ -2,20 +2,14 @@ package com.proj.gateway.filters;
 
 import com.proj.gateway.util.JwtService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -45,10 +39,9 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
         String token = authHeader.substring(7);
         try {
-            Claims claims = jwtService.validateToken(token); // Validate the token and get claims
-            Long userId = jwtService.getUserIdFromToken(token); // Extract user ID from claims
-            String userRole = claims.get("roles", String.class); // Extract user role from claims
-
+            Claims claims = jwtService.validateToken(token);
+            Long userId = jwtService.getUserIdFromToken(token);
+            String userRole = claims.get("roles", String.class);
 
             ServerHttpRequest modifiedRequest = request.mutate()
                     .header("X-User-Id", userId.toString())
@@ -61,7 +54,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
         } catch (RuntimeException e) {
-            // Log the exception for debugging
+
             e.printStackTrace();
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             DataBuffer buffer = exchange.getResponse().bufferFactory().wrap("Invalid JWT Token".getBytes());
