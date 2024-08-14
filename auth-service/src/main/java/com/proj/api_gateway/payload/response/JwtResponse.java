@@ -1,5 +1,8 @@
 package com.proj.api_gateway.payload.response;
 
+import lombok.Data;
+
+@Data
 public class JwtResponse {
 
     private String token;
@@ -8,7 +11,4 @@ public class JwtResponse {
         this.token = token;
     }
 
-    public String getToken() {
-        return token;
-    }
 }

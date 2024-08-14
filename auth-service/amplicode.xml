@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodePersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="auth-service" name="Default">
+        <packages>
+          <package value="com.proj.api_gateway" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="payment-service" name="Default">
+        <packages>
+          <package value="com.proj.payment_service" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="rental-microservice" name="Default">
+        <packages>
+          <package value="com.project.rental_microservice" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="vehicle-microservice" name="Default">
+        <packages>
+          <package value="com.vehicle.vehicle_microservice" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="notification-service" name="Default">
+        <packages>
+          <package value="com.project.notification_service" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

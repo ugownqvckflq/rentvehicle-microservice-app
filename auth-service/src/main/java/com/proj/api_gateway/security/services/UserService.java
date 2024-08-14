@@ -4,13 +4,11 @@ import com.proj.api_gateway.entity.Role;
 import com.proj.api_gateway.entity.User;
 import com.proj.api_gateway.repository.RoleRepository;
 import com.proj.api_gateway.repository.UserRepository;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,38 +18,21 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    public void registerUserWithCredentials(String username, String email, String password, Set<String> strRoles) {
-        User user = new User(username, passwordEncoder.encode(password));
 
-        Set<Role> roles = new HashSet<>();
-
-        logger.info(roleRepository.findByName("ROLE_ADMIN").toString());
-        strRoles.forEach(role -> {
-            if (role.equals("ROLE_ADMIN")) {
-                Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                logger.info(adminRole.toString());
-                roles.add(adminRole);
-            } else {
-                Role userRole = roleRepository.findByName("ROLE_USER")
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                roles.add(userRole);
-            }
-        });
-        user.setEmail(email);
-        user.setRoles(roles);
-        userRepository.save(user);
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
+
 
     public User registerSimpleUser(String username, String email, String password) {
         User user = new User(username, passwordEncoder.encode(password));
@@ -65,9 +46,52 @@ public class UserService {
     }
 
 
-
     public Optional<User> findByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         return user;
     }
+
+    public void grantAdminRole(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        user.getRoles().add(adminRole);
+        userRepository.save(user);
+    }
+
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+        user.setBanned(true);
+        userRepository.save(user);
+    }
+
+    public void unBanUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+        user.setBanned(false);
+        userRepository.save(user);
+    }
+
+    public User updateUser(Long userId, User updatedUser) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+
+        user.setUsername(updatedUser.getUsername());
+        user.setEmail(updatedUser.getEmail());
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+        userRepository.save(user);
+
+        return user;
+    }
+
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Error: User not found."));
+        userRepository.delete(user);
+    }
+
 }

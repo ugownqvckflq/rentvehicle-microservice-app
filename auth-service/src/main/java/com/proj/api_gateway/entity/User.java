@@ -3,6 +3,7 @@ package com.proj.api_gateway.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +26,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+
     @Size(max = 20)
     private String username;
 
@@ -48,5 +49,8 @@ public class User {
         this.username = username;
         this.password = password;
     }
+
+    @NotNull
+    private Boolean banned = false;
 
 }

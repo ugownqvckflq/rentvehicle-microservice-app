@@ -1,19 +1,18 @@
 package com.proj.api_gateway.security.services;
 
-import com.proj.api_gateway.entity.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
+    @Getter
     private Long id;
     private final String username;
     private final String password;
+    @Getter
     private final String email;
     private final Collection<? extends GrantedAuthority> authorities;
 
@@ -26,18 +25,11 @@ public class UserDetailsImpl implements UserDetails {
     }
 
 
-    public String getEmail() {
-        return email;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
-    public Long getId() {
-        return id;
-    }
     @Override
     public String getPassword() {
         return password;

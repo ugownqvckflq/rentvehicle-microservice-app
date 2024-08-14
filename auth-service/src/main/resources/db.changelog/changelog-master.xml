@@ -11,6 +11,8 @@
     <include file="/db.changelog/changeset/V2__create_users_table.xml"/>
     <include file="/db.changelog/changeset/V3__create_roles.xml"/>
     <include file="/db.changelog/changeset/V4__create_user_roles_table.xml"/>
+    <include file="/db.changelog/changeset/V5__add_banned_column_to_users.xml"/>
+    <include file="/db.changelog/changeset/V6__insert-startup-data.xml"/>
 
 
 

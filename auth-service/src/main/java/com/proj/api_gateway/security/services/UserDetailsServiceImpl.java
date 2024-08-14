@@ -27,7 +27,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
-        // Извлечение ролей пользователя
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
@@ -40,5 +39,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
 
 
-}
+    }
 }
