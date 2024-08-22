@@ -2,6 +2,8 @@ package com.proj.payment_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,12 +21,15 @@ public class Rental {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
+    @NotNull(message = "User ID must not be null")
     private Long userId;
 
     @Column(name = "vehicle_id", nullable = false)
+    @NotNull(message = "Vehicle ID must not be null")
     private Long vehicleId;
 
     @Column(name = "start_time", nullable = false)
+    @NotNull(message = "Start Time must not be null")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
 
@@ -32,23 +37,13 @@ public class Rental {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
-    @Transient // Поле не будет сохраняться в базе данных
+    @Transient // Не будуте сохраняться в бд
+    @NotBlank(message = "Duration must not be blank")
     private String duration;
 
-    public String getDuration() {
-        if (startTime != null && endTime != null) {
-            long seconds = ChronoUnit.SECONDS.between(startTime, endTime);
-            long hours = seconds / 3600;
-            long minutes = (seconds % 3600) / 60;
-            long secs = seconds % 60;
-            return String.format("%02d:%02d:%02d", hours, minutes, secs);
-        }
-        return null;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
+    @Transient // Не будуте сохраняться в бд
+    @NotBlank(message = "Vehicle Type must not be blank")
+    private String vehicleType;
 
 
 }

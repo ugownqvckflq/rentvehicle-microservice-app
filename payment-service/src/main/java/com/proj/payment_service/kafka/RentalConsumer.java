@@ -16,8 +16,6 @@ public class RentalConsumer {
 
     @KafkaListener(topics = "rental_topic", groupId = "payment_group")
     public void listenRentalEvents(Rental rental) {
-        System.out.println("Message" + rental.toString());
-        //paymentService.processRental(rental);
-
+        paymentService.processRental(rental);
     }
 }
