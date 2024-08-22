@@ -5,28 +5,25 @@ spring:
     gateway:
       routes:
         - id: auth-service
-          uri: http://localhost:8088
+          uri: lb://AUTH-SERVICE
           predicates:
             - Path=/auth/**
-            - Path=/swagger-ui/**  # Добавить этот маршрут
-            - Path=/v3/api-docs/**  # И этот маршрут
+            - Path=/users/**
         - id: vehicle-service
-          uri: http://localhost:8082
+          uri: lb://VEHICLE-SERVICE
           predicates:
             - Path=/vehicles/**
-            - Path=/swagger-ui/**  # Добавить этот маршрут
-            - Path=/v3/api-docs/**  # И этот маршрут
         - id: rental-service
-          uri: http://localhost:8083
+          uri: lb://RENTAL-SERVICE
           predicates:
             - Path=/rentals/**
-            - Path=/swagger-ui/**  # Добавить этот маршрут
-            - Path=/v3/api-docs/**  # И этот маршрут
         - id: payment-service
-          uri: http://localhost:8084
+          uri: lb://PAYMENT-SERVICE
           predicates:
             - Path=/card/**
-            - Path=/swagger-ui/**
+
+
+
 
   main:
     web-application-type: reactive

@@ -37,7 +37,6 @@ public class JwtService {
 
     public Long getUserIdFromToken(String token) {
         Claims claims = getAllClaims(token);
-        // Предполагаем, что userId хранится в claim с ключом "userId"
         Object userIdClaim = claims.get("userId");
         if (userIdClaim instanceof Number) {
             return ((Number) userIdClaim).longValue();
