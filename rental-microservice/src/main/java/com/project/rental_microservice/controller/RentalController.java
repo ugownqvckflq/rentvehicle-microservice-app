@@ -1,19 +1,22 @@
 package com.project.rental_microservice.controller;
 
-import com.project.rental_microservice.dto.VehicleDto;
+import com.project.rental_microservice.dto.requests.RentalRequest;
+import com.project.rental_microservice.dto.requests.ReturnRequest;
 import com.project.rental_microservice.entity.Rental;
-import com.project.rental_microservice.dto.RentalRequest;
-import com.project.rental_microservice.dto.ReturnRequest;
+import com.project.rental_microservice.exceptions.InvalidUserIdFormatException;
 import com.project.rental_microservice.service.RentalService;
-import com.project.rental_microservice.webclient.VehicleServiceClient;
+import com.project.rolechecker.RoleCheck;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 
@@ -22,81 +25,89 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RentalController {
 
-
     private final RentalService rentalService;
 
+    private Long extractUserIdFromHeader(HttpServletRequest request) {
+        String userIdStr = request.getHeader("X-User-Id");
+        if (userIdStr == null) {
+            throw new IllegalArgumentException("User ID is missing in the request headers");
+        }
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new InvalidUserIdFormatException("Invalid user ID format");
+        }
+    }
 
-    private final VehicleServiceClient vehicleServiceClient;
-
-
+    @Operation(
+            summary = "Аренда транспортного средства",
+            description = "Позволяет пользователю арендовать транспортное средство. Необходимо предоставить JWT-токен и идентификатор пользователя в заголовках запроса.",
+            parameters = {
+                    @Parameter(name = "X-User-Id", description = "Идентификатор пользователя, выполняющего аренду", required = true, in = ParameterIn.HEADER),
+                    @Parameter(name = HttpHeaders.AUTHORIZATION, description = "JWT-токен для аутентификации пользователя", required = true, in = ParameterIn.HEADER)
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Данные для аренды транспортного средства",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RentalRequest.class)
+                    )
+            )
+    )
     @PostMapping("/rent")
-    public ResponseEntity<?> rentVehicle(@RequestHeader("X-User-Id") String userId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody RentalRequest rentalRequest) {
+    public ResponseEntity<Rental> rentVehicle(HttpServletRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody RentalRequest rentalRequest) {
         String jwtToken = authorizationHeader.replace("Bearer ", "");
+        Long userId = extractUserIdFromHeader(request);
 
-        try {
-            Rental rental = rentalService.rentVehicle(userId, rentalRequest, jwtToken);
-            return ResponseEntity.ok(rental);
-        } catch (WebClientResponseException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при аренде транспортного средства");
-        }
+        return ResponseEntity.ok(rentalService.rentVehicle(userId, rentalRequest, jwtToken));
     }
 
+    @Operation(
+            summary = "Возврат транспортного средства",
+            description = "Позволяет пользователю вернуть транспортное средство. Необходимо предоставить JWT-токен в заголовке запроса.",
+            parameters = {
+                    @Parameter(name = HttpHeaders.AUTHORIZATION, description = "JWT-токен для аутентификации пользователя", required = true, in = ParameterIn.HEADER)
+            },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Данные для возврата транспортного средства",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ReturnRequest.class)
+                    )
+            )
+    )
     @PostMapping("/return")
-    public ResponseEntity<?> returnVehicle(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody ReturnRequest returnRequest) {
+    public ResponseEntity<Rental> returnVehicle(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody ReturnRequest returnRequest) {
         String jwtToken = authorizationHeader.replace("Bearer ", "");
 
-        try {
-            Rental rental = rentalService.returnVehicle(returnRequest, jwtToken);
-            return ResponseEntity.ok(rental);
-        } catch (WebClientResponseException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при возврате транспортного средства");
-        }
+        return ResponseEntity.ok(rentalService.returnVehicle(returnRequest, jwtToken));
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<?> hello(@RequestHeader("X-User-Id") String userId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-
-        String jwtToken = authorizationHeader.replace("Bearer ", "");
-
-        try {
-            VehicleDto vehicle = vehicleServiceClient.getVehicleByLicensePlate("SCOOT3", jwtToken).block();
-            return ResponseEntity.ok(vehicle);
-        } catch (WebClientResponseException e) {
-            // Логирование ошибки
-            e.printStackTrace();
-            return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
-        } catch (Exception e) {
-            // Логирование общей ошибки
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при получении данных о транспортном средстве");
-        }
-    }
-
-
-
-
+    @Operation(
+            summary = "Получить аренду по ID (только для админа)",
+            description = "Получить информацию об аренде по идентификатору. Доступно только для пользователей с ролью ROLE_ADMIN.",
+            parameters = {
+                    @Parameter(name = "rentalId", description = "Идентификатор аренды", required = true, in = ParameterIn.PATH),
+                    @Parameter(name = "X-User-Role", description = "Роль пользователя", required = true, in = ParameterIn.HEADER, example = "ROLE_ADMIN")
+            }
+    )
+    @RoleCheck("ROLE_ADMIN")
     @GetMapping("/{rentalId}")
-    public ResponseEntity<Rental> getRentalById(@RequestHeader("X-User-Role") String userRole, @PathVariable Long rentalId) {
-        if ("ROLE_ADMIN".equals(userRole)) {
-            return ResponseEntity.ok(rentalService.getRentalById(rentalId));
-        }else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-
+    public ResponseEntity<Rental> getRentalById(@PathVariable Long rentalId) {
+        return ResponseEntity.ok(rentalService.getRentalById(rentalId));
     }
 
+    @Operation(
+            summary = "Получить аренды по ID пользователя (только для админа)",
+            description = "Получить список всех аренды для конкретного пользователя по его ID. Доступно только для пользователей с ролью ROLE_ADMIN.",
+            parameters = {
+                    @Parameter(name = "userId", description = "Идентификатор пользователя", required = true, in = ParameterIn.PATH),
+                    @Parameter(name = "X-User-Role", description = "Роль пользователя", required = true, in = ParameterIn.HEADER, example = "ROLE_ADMIN")
+            }
+    )
+    @RoleCheck("ROLE_ADMIN")
     @GetMapping("/user/{userId}")
-    public List<Rental> getRentalsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(rentalService.getRentalsByUserId(userId)).getBody();
+    public ResponseEntity<List<Rental>> getRentalsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(rentalService.getRentalsByUserId(userId));
     }
-
 }
