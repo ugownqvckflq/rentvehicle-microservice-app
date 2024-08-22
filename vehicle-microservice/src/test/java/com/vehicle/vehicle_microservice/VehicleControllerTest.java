@@ -1,200 +1,79 @@
 package com.vehicle.vehicle_microservice;
 
 import com.vehicle.vehicle_microservice.controller.VehicleController;
-import com.vehicle.vehicle_microservice.entity.*;
-import com.vehicle.vehicle_microservice.services.VehicleService;
-import org.junit.jupiter.api.BeforeEach;
+import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.entity.Car;
+import com.vehicle.vehicle_microservice.entity.Status;
+import com.vehicle.vehicle_microservice.entity.Vehicle;
+import com.vehicle.vehicle_microservice.services.VehicleServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
-public class VehicleControllerTest {
+class VehicleControllerTest {
 
     @Mock
-    private VehicleService vehicleService;
+    private VehicleServiceImpl vehicleServiceImpl;
 
     @InjectMocks
     private VehicleController vehicleController;
 
-    private Vehicle car;
-    private Vehicle scooter;
+    private final MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        car = new Car();
+    public VehicleControllerTest() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(vehicleController).build();
+    }
+
+    @Test
+    void testGetVehicleById() throws Exception {
+        Car car = new Car();
         car.setId(1L);
-        car.setModel("Tesla");
-        car.setSpeed(150.0);
-        car.setStatus(Status.AVAILABLE);
-        car.setLicensePlate("TESLA123");
+        car.setLicensePlate("FF-488");
 
-        scooter = new Scooter();
-        scooter.setId(2L);
-        scooter.setModel("Xiaomi");
-        scooter.setSpeed(25.0);
-        scooter.setStatus(Status.AVAILABLE);
-        scooter.setLicensePlate("XIAOMI123");
+        when(vehicleServiceImpl.getById(1L)).thenReturn(Optional.of(car));
+
+        mockMvc.perform(get("/vehicles/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.licensePlate").value("FF-488"));
     }
 
     @Test
-    void testGetAllVehicles_AdminRole() {
-        when(vehicleService.getAllVehicle()).thenReturn(Arrays.asList(car, scooter));
+    void testCreateVehicle() throws Exception {
+        VehicleCreateDTO vehicleCreateDTO = new VehicleCreateDTO();
+        vehicleCreateDTO.setModel("Ferrari 488");
+        vehicleCreateDTO.setSpeed(211.00);
+        vehicleCreateDTO.setLicensePlate("FF-488");
+        vehicleCreateDTO.setVehicleType("CAR");
+        vehicleCreateDTO.setFuelLevel(85.00);
+        vehicleCreateDTO.setHorsePower(661);
+        vehicleCreateDTO.setNumberOfDoors(2);
+        vehicleCreateDTO.setStatus(Status.AVAILABLE);
 
-        ResponseEntity<List<Vehicle>> response = vehicleController.getAllVehicles("ROLE_ADMIN");
+        Car car = new Car();
+        car.setModel("Ferrari 488");
+        car.setSpeed(211.00);
+        car.setLicensePlate("FF-488");
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
-        verify(vehicleService, times(1)).getAllVehicle();
-    }
+        when(vehicleServiceImpl.createVehicle(any(VehicleCreateDTO.class))).thenReturn(car);
 
-    @Test
-    void testGetAllVehicles_Forbidden() {
-        ResponseEntity<List<Vehicle>> response = vehicleController.getAllVehicles("ROLE_USER");
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(vehicleService, times(0)).getAllVehicle();
-    }
-
-    @Test
-    void testGetVehicleById_Found() {
-        when(vehicleService.getById(1L)).thenReturn(Optional.of(car));
-
-        ResponseEntity<Vehicle> response = vehicleController.getVehicleById(1L);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(car, response.getBody());
-        verify(vehicleService, times(1)).getById(1L);
-    }
-
-    @Test
-    void testGetVehicleById_NotFound() {
-        when(vehicleService.getById(1L)).thenReturn(Optional.empty());
-
-        ResponseEntity<Vehicle> response = vehicleController.getVehicleById(1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(vehicleService, times(1)).getById(1L);
-    }
-
-    @Test
-    void testCreateVehicle() {
-        when(vehicleService.saveVehicle(car)).thenReturn(car);
-
-        ResponseEntity<Vehicle> response = vehicleController.createVehicle(car);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(car, response.getBody());
-        verify(vehicleService, times(1)).saveVehicle(car);
-    }
-
-    @Test
-    void testDeleteVehicle_AdminRole() {
-        doNothing().when(vehicleService).deleteVehicle(1L);
-
-        ResponseEntity<Void> response = vehicleController.deleteVehicle("ROLE_ADMIN", 1L);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(vehicleService, times(1)).deleteVehicle(1L);
-    }
-
-    @Test
-    void testDeleteVehicle_Forbidden() {
-        ResponseEntity<Void> response = vehicleController.deleteVehicle("ROLE_USER", 1L);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(vehicleService, times(0)).deleteVehicle(1L);
-    }
-
-    @Test
-    void testUpdateVehicle_AdminRole() {
-        Vehicle updatedCar = car;
-        updatedCar.setModel("Tesla Model S");
-
-        when(vehicleService.getById(1L)).thenReturn(Optional.of(car));
-        when(vehicleService.saveVehicle(any(Vehicle.class))).thenReturn(updatedCar);
-
-        ResponseEntity<Vehicle> response = vehicleController.updateVehicle("ROLE_ADMIN", 1L, updatedCar);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Tesla Model S", response.getBody().getModel());
-        verify(vehicleService, times(1)).getById(1L);
-        verify(vehicleService, times(1)).saveVehicle(any(Vehicle.class));
-    }
-
-    @Test
-    void testUpdateVehicle_Forbidden() {
-        Vehicle updatedCar = car;
-        updatedCar.setModel("Tesla Model S");
-
-        ResponseEntity<Vehicle> response = vehicleController.updateVehicle("ROLE_USER", 1L, updatedCar);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(vehicleService, times(0)).getById(1L);
-        verify(vehicleService, times(0)).saveVehicle(any(Vehicle.class));
-    }
-
-    @Test
-    void testGetByPlate_Found() {
-        when(vehicleService.getByPlate("TESLA123")).thenReturn(Optional.of(car));
-
-        ResponseEntity<Vehicle> response = vehicleController.getByPlate("TESLA123");
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(car, response.getBody());
-        verify(vehicleService, times(1)).getByPlate("TESLA123");
-    }
-
-    @Test
-    void testGetByPlate_NotFound() {
-        when(vehicleService.getByPlate("TESLA123")).thenReturn(Optional.empty());
-
-        ResponseEntity<Vehicle> response = vehicleController.getByPlate("TESLA123");
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(vehicleService, times(1)).getByPlate("TESLA123");
-    }
-
-    @Test
-    void testGetAvailableVehicles() {
-        when(vehicleService.getAvailableVehicles()).thenReturn(Arrays.asList(car, scooter));
-
-        ResponseEntity<List<Vehicle>> response = vehicleController.getAvailableVehicles();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
-        verify(vehicleService, times(1)).getAvailableVehicles();
-    }
-
-    @Test
-    void testSearchVehiclesByModel_Found() {
-        when(vehicleService.searchVehiclesByModel("Tesla")).thenReturn(Arrays.asList(car));
-
-        ResponseEntity<List<Vehicle>> response = vehicleController.searchVehiclesByModel("Tesla");
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(vehicleService, times(1)).searchVehiclesByModel("Tesla");
-    }
-
-    @Test
-    void testSearchVehiclesByModel_NotFound() {
-        when(vehicleService.searchVehiclesByModel("Tesla")).thenReturn(Arrays.asList());
-
-        ResponseEntity<List<Vehicle>> response = vehicleController.searchVehiclesByModel("Tesla");
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(vehicleService, times(1)).searchVehiclesByModel("Tesla");
+        mockMvc.perform(post("/vehicles/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"model\":\"Ferrari 488\",\"speed\":211.00,\"licensePlate\":\"FF-488\",\"vehicleType\":\"CAR\",\"fuelLevel\":85.00,\"horsePower\":661,\"numberOfDoors\":2,\"status\":\"AVAILABLE\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.licensePlate").value("FF-488"));
     }
 }

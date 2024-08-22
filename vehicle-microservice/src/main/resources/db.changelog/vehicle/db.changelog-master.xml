@@ -8,4 +8,6 @@
     <include file="db.changelog/changeset/V1__create_vehicle_table.xml"/>
     <include file="db.changelog/changeset/V2__create_vehicle_pricing_table.xml"/>
     <include file="db.changelog/changeset/V3__add_indexes_and_constraints.xml"/>
+    <include file="/db.changelog/changeset/V4__create-startup-data-vehicles.xml"/>
+    <include file="/db.changelog/changeset/V5__create-startup-vehicle-pricing.xml"/>
 </databaseChangeLog>

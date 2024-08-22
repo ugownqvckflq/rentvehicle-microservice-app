@@ -1,0 +1,48 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="4" author="Nick">
+        <insert tableName="vehicle">
+            <column name="vehicle_type" value="SCOOTER"/>
+            <column name="license_plate" value="BB-11"/>
+            <column name="model" value="Scooter"/>
+            <column name="speed" value="23.00"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="battery_level" value="13.00"/>
+        </insert>
+
+        <insert tableName="vehicle">
+            <column name="vehicle_type" value="CAR"/>
+            <column name="license_plate" value="FF-488"/>
+            <column name="model" value="Ferrari 488"/>
+            <column name="speed" value="211.00"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="fuel_level" value="85.00"/>
+            <column name="horse_power" value="661"/>
+            <column name="number_of_doors" value="2"/>
+        </insert>
+
+        <insert tableName="vehicle">
+            <column name="vehicle_type" value="CAR"/>
+            <column name="license_plate" value="GK-789"/>
+            <column name="model" value="Go-Kart X"/>
+            <column name="speed" value="80.00"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="fuel_level" value="30.00"/>
+            <column name="horse_power" value="25"/>
+            <column name="number_of_doors" value="1"/>
+        </insert>
+
+        <insert tableName="vehicle">
+            <column name="vehicle_type" value="SCOOTER"/>
+            <column name="license_plate" value="ES-2024"/>
+            <column name="model" value="Xiaomi M365"/>
+            <column name="speed" value="25.00"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="battery_level" value="75.00"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
