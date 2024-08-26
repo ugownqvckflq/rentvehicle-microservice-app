@@ -1,7 +1,6 @@
 package com.proj.payment_service.configuration;
 
 
- //
 import com.proj.payment_service.dto.Rental;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -17,20 +16,18 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
+
 @Configuration
 @EnableKafka
 public class KafkaConfig {
 
 
-    private String bootstrapServers = "localhost:9092";
-
-
-    private String groupId = "payment_group";
-
     @Bean
     public ConsumerFactory<String, Rental> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
+        String bootstrapServers = "kafka:9092";
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        String groupId = "payment_group";
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
@@ -40,6 +37,7 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(new JsonDeserializer<>(Rental.class, false)));
     }
+
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Rental> kafkaListenerContainerFactory() {

@@ -1,22 +1,33 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
   application:
     name: payment-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/butilka
+    url: jdbc:postgresql://localhost:5432/app_db
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    url: jdbc:postgresql://localhost:5432/app_db
+    user: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
 server:
   port: 8084
 
 encryption:
-  password: iasudiashdjkhasjdkhasiudhsakjdhjaskdhasiudhsiajdhkjsdhj
-  salt: jkhasdjkhasjkdkasjd
+  password: 0123456789ABCDEF
+  salt: FEDCBA9876543210
 
-jwt:
-  secret: jklasdjasui123kjklasjdioasipoksjkladjiosau23u09123jklajsdjaiosdhhjk12h3jhkasd
+
+group:
+  id: payment_group
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="3-insert-cards-data" author="Nick">
+        <insert tableName="cards">
+            <column name="id" value="1"/>
+            <column name="user_id" value="1"/>
+            <column name="card_number" value="4330012345678901"/>
+            <column name="expiry_date" value="09/30"/>
+            <column name="cvv" value="648dcd31700dd48798c4be1248aa1b9a2753bebcff3481818a0ad701b614b0d2"/>
+            <column name="balance" value="100.00"/>
+        </insert>
+
+        <insert tableName="cards">
+            <column name="id" value="2"/>
+            <column name="user_id" value="2"/>
+            <column name="card_number" value="4330065432178901"/>
+            <column name="expiry_date" value="09/31"/>
+            <column name="cvv" value="401b02e40b25f6470b00a03f7658c5dd2a0018a2803a5fd3dfcf83e167e6d0d3"/>
+            <column name="balance" value="1000.00"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

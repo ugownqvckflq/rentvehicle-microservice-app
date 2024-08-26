@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #0044cc;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Dear ${userName},</h1>
+    <p>Your rental has ended!</p>
+    <div class="content">
+        <p><strong>Rental ID:</strong> ${rentalId}</p>
+        <p><strong>Vehicle:</strong> ${model} (License Plate: ${licensePlate})</p>
+        <p><strong>Start Time:</strong> ${startTime}</p>
+        <p><strong>End Time:</strong> ${endTime}</p>
+        <p><strong>Duration:</strong> ${duration}</p>
+    </div>
+    <p>Thank you for using our service!</p>
+</div>
+</body>
+</html>

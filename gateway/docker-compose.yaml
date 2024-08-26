@@ -1,0 +1,139 @@
+version: '3.8'
+
+volumes:
+  pg_data:
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
+
+  app_database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: app_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  eureka-server:
+    build: ../eureka-server
+    container_name: eureka-server
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+    command: sh -c './wait-for.sh app_database:5432 -- ./wait-for.sh kafka:9092 -- java -jar /app.jar'
+
+  auth-microservice:
+    build: ../auth-service
+    restart: always
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+      SPRING_LIQUIBASE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+    networks:
+      - app-network
+    depends_on:
+      - app_database
+    command: sh -c './wait-for.sh eureka-server:8761 -- java -jar /app.jar'
+
+  vehicle-service:
+    build: ../vehicle-microservice
+    container_name: vehicle-service
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+      SPRING_LIQUIBASE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+    networks:
+      - app-network
+    depends_on:
+      - eureka-server
+    command: sh -c './wait-for.sh eureka-server:8761 -- java -jar /app.jar'
+
+  rental-microservice:
+    build: ../rental-microservice
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+      SPRING_LIQUIBASE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+    networks:
+      - app-network
+    depends_on:
+      - vehicle-service
+    command: sh -c './wait-for.sh vehicle-service:8082 -- java -jar /app.jar'
+
+  payment-microservice:
+    build: ../payment-service
+    restart: always
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+      SPRING_LIQUIBASE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+    networks:
+      - app-network
+    depends_on:
+      - rental-microservice
+    command: sh -c './wait-for.sh rental-microservice:8083 -- java -jar /app.jar'
+
+  notification-microservice:
+    build: ../notification-service
+    restart: always
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://app_database:5432/app_db'
+    networks:
+      - app-network
+    depends_on:
+      - payment-microservice
+    command: sh -c './wait-for.sh payment-microservice:8084 -- java -jar /app.jar'
+
+  gateway:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    networks:
+      - app-network
+    depends_on:
+      - eureka-server
+    command: sh -c './wait-for.sh eureka-server:8761 -- java -jar /app.jar'
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,10 +1,10 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
   application:
     name: rental-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/butilka
+    url: jdbc:postgresql://localhost:5432/app_db
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
@@ -12,16 +12,26 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     change-log: classpath:/db_changelog/db.changelog-master.xml
-    url: jdbc:postgresql://localhost:5432/butilka
+    url: jdbc:postgresql://localhost:5432/app_db
     user: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
+
+vehicle-service:
+  url: http://vehicle-service:8082/api/v1/vehicles
+
 server:
   port: 8083
 
-vehicle:
-  service:
-    url: http://localhost:8082/vehicles
+topic:
+  name: rental_topic
 
-jwt:
-  secret: jklasdjasui123kjklasjdioasipoksjkladjiosau23u09123jklajsdjaiosdhhjk12h3jhkasd
+logging:
+  level:
+    root: INFO
+    com.project.rental_microservice: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
