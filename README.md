@@ -49,7 +49,7 @@
 ###  VI. Запускаем приложение
 1. Клонируем проект в среду разработки
 2. Убедитесь что Java 17, docker compose 3.x
-3. Запустить приложение можно терминальной командой "docker composer up"
+3. Запустить приложение можно терминальной командой "docker-compose up" (в настройках docker desktop лучше установить параметр Memory limit от 4gb)
 4. При успешном запуске приложения, можно пользоваться подключенными API
 
 
@@ -58,7 +58,7 @@
 1. **Аутентификация и Регистрация**
 
 1.1 Аутентификация пользователя
-URL: http://localhost:8080/auth/signin
+URL: http://localhost:8080/api/v1/auth/signin
 Метод: POST
 Параметры тела запроса: AuthenticationRequest loginRequest (содержит username и password)
 Доступно для: Неавторизованных пользователей
@@ -66,7 +66,7 @@ URL: http://localhost:8080/auth/signin
 Описание: Выполняет аутентификацию пользователя. В случае успеха возвращает JWT токен.
 
 1.2 Регистрация пользователя
-URL: http://localhost:8080/auth/signup
+URL: http://localhost:8080/api/v1/auth/signup
 Метод: POST
 Параметры тела запроса: SignupRequest signUpRequest (содержит username, email, password)
 Доступно для: Неавторизованных пользователей
@@ -74,27 +74,25 @@ URL: http://localhost:8080/auth/signup
 Описание: Регистрирует нового пользователя в системе. Возвращает сообщение об успешной регистрации.
 
 1.3 Назначение роли администратора
-URL: http://localhost:8080/auth/grant-admin/{id}
+URL: http://localhost:8080/api/v1/auth/grant-admin/{id}
 Метод: POST
 Параметр пути: Long id (идентификатор пользователя, которому назначается роль администратора)
 Доступно для: ADMIN
 Метод сервиса: grantAdminRole()
 Описание: Назначает указанному пользователю роль администратора.
 
-2. **Управление пользователями**
-
+Управление пользователями
 2.1 Поиск пользователя по имени пользователя
-URL: http://localhost:8080/auth/find/{username}
+URL: http://localhost:8080/api/v1/users/find/{username}
 Метод: GET
 Параметр пути: String username (имя пользователя)
 Доступно для: AUTHENTICATED USER
 Метод сервиса: findUserByUsername()
 Описание: Возвращает данные пользователя по его имени.
 
-3. **Управление картами и средствами**
-
+Управление картами и средствами
 3.1 Добавление карты
-URL: http://localhost:8080/card/add-card
+URL: http://localhost:8080/api/v1/cards
 Метод: POST
 Параметры тела запроса: CardRequest cardRequest (содержит информацию о карте)
 Доступно для: AUTHENTICATED USER
@@ -102,7 +100,7 @@ URL: http://localhost:8080/card/add-card
 Описание: Добавляет новую карту пользователю.
 
 3.2 Добавление средств на карту
-URL: http://localhost:8080/card/add-funds
+URL: http://localhost:8080/api/v1/cards/funds
 Метод: POST
 Параметры запроса: BigDecimal amount (сумма для добавления)
 Доступно для: ADMIN
@@ -110,7 +108,7 @@ URL: http://localhost:8080/card/add-funds
 Описание: Добавляет указанную сумму на карту пользователя.
 
 3.3 Снятие средств с карты
-URL: http://localhost:8080/card/deduct-funds
+URL: http://localhost:8080/api/v1/cards/funds/deduct
 Метод: POST
 Параметры запроса: BigDecimal amount (сумма для снятия)
 Доступно для: ADMIN
@@ -118,16 +116,15 @@ URL: http://localhost:8080/card/deduct-funds
 Описание: Снимает указанную сумму с карты пользователя.
 
 3.4 Получение баланса
-URL: http://localhost:8080/card/balance
+URL: http://localhost:8080/api/v1/cards/balance
 Метод: GET
 Доступно для: AUTHENTICATED USER
 Метод сервиса: getBalance()
 Описание: Возвращает текущий баланс карты пользователя.
 
-4. **Управление арендами**
-
+Управление арендами
 4.1 Аренда транспортного средства
-URL: http://localhost:8080/rent/rent
+URL: http://localhost:8080/api/v1/rentals/rent
 Метод: POST
 Параметры тела запроса: RentalRequest rentalRequest (содержит информацию о транспортном средстве и сроке аренды)
 Доступно для: AUTHENTICATED USER
@@ -135,7 +132,7 @@ URL: http://localhost:8080/rent/rent
 Описание: Позволяет пользователю арендовать транспортное средство.
 
 4.2 Возврат транспортного средства
-URL: http://localhost:8080/rent/return
+URL: http://localhost:8080/api/v1/rentals/return
 Метод: POST
 Параметры тела запроса: ReturnRequest returnRequest (содержит информацию о возврате транспортного средства)
 Доступно для: AUTHENTICATED USER
@@ -143,7 +140,7 @@ URL: http://localhost:8080/rent/return
 Описание: Позволяет пользователю вернуть арендованное транспортное средство.
 
 4.3 Получение аренды по идентификатору
-URL: http://localhost:8080/rent/{rentalId}
+URL: http://localhost:8080/api/v1/rentals/{rentalId}
 Метод: GET
 Параметр пути: Long rentalId (идентификатор аренды)
 Доступно для: ADMIN
@@ -151,24 +148,23 @@ URL: http://localhost:8080/rent/{rentalId}
 Описание: Возвращает информацию об аренде по её идентификатору.
 
 4.4 Получение всех аренд пользователя
-URL: http://localhost:8080/rent/user/{userId}
+URL: http://localhost:8080/api/v1/rentals/users/{userId}/rentals
 Метод: GET
 Параметр пути: Long userId (идентификатор пользователя)
 Доступно для: ADMIN
 Метод сервиса: getRentalsByUserId()
 Описание: Возвращает все аренды, связанные с указанным пользователем.
 
-5. **Управление транспортными средствами**
-
+Управление транспортными средствами
 5.1 Получение всех транспортных средств
-URL: http://localhost:8080/vehicle/all
+URL: http://localhost:8080/api/v1/vehicles
 Метод: GET
 Доступно для: ADMIN
 Метод сервиса: getAllVehicles()
 Описание: Возвращает список всех транспортных средств.
 
 5.2 Получение транспортного средства по идентификатору
-URL: http://localhost:8080/vehicle/{id}
+URL: http://localhost:8080/api/v1/vehicles/{id}
 Метод: GET
 Параметр пути: Long id (идентификатор транспортного средства)
 Доступно для: AUTHENTICATED USER
@@ -176,7 +172,7 @@ URL: http://localhost:8080/vehicle/{id}
 Описание: Возвращает информацию о транспортном средстве по его идентификатору.
 
 5.3 Создание транспортного средства
-URL: http://localhost:8080/vehicle/create
+URL: http://localhost:8080/api/v1/vehicles/create
 Метод: POST
 Параметры тела запроса: VehicleCreateDTO vehicleCreateDTO (содержит информацию о транспортном средстве)
 Доступно для: ADMIN
@@ -184,7 +180,7 @@ URL: http://localhost:8080/vehicle/create
 Описание: Создаёт новое транспортное средство в системе.
 
 5.4 Удаление транспортного средства
-URL: http://localhost:8080/vehicle/{id}
+URL: http://localhost:8080/api/v1/vehicles/{id}
 Метод: DELETE
 Параметр пути: Long id (идентификатор транспортного средства)
 Доступно для: ADMIN
@@ -192,7 +188,7 @@ URL: http://localhost:8080/vehicle/{id}
 Описание: Удаляет транспортное средство из системы по его идентификатору.
 
 5.5 Получение транспортного средства по номерному знаку
-URL: http://localhost:8080/vehicle/plate/{plate}
+URL: http://localhost:8080/api/v1/vehicles/plate/{plate}
 Метод: GET
 Параметр пути: String plate (номерной знак транспортного средства)
 Доступно для: AUTHENTICATED USER
@@ -200,7 +196,7 @@ URL: http://localhost:8080/vehicle/plate/{plate}
 Описание: Возвращает транспортное средство по его номерному знаку.
 
 5.6 Обновление транспортного средства
-URL: http://localhost:8080/vehicle/{id}
+URL: http://localhost:8080/api/v1/vehicles/{id}
 Метод: PUT
 Параметры тела запроса: VehicleCreateDTO vehicleCreateDTO (содержит обновлённую информацию о транспортном средстве)
 Параметр пути: Long id (идентификатор транспортного средства)
@@ -209,14 +205,14 @@ URL: http://localhost:8080/vehicle/{id}
 Описание: Обновляет данные о транспортном средстве.
 
 5.7 Получение доступных транспортных средств
-URL: http://localhost:8080/vehicle/available
+URL: http://localhost:8080/api/v1/vehicles/available
 Метод: GET
 Доступно для: AUTHENTICATED USER
 Метод сервиса: getAvailableVehicles()
 Описание: Возвращает список всех доступных транспортных средств.
 
 5.8 Изменение статуса транспортного средства
-URL: http://localhost:8080/vehicle/set-status/{id}/{status}
+URL: http://localhost:8080/api/v1/vehicles/{id}/status/{status}
 Метод: POST
 Параметр пути: Long id (идентификатор транспортного средства), Status status (новый статус)
 Доступно для: AUTHENTICATED USER
@@ -224,7 +220,7 @@ URL: http://localhost:8080/vehicle/set-status/{id}/{status}
 Описание: Изменяет статус транспортного средства на указанный.
 
 5.9 Поиск транспортных средств по модели
-URL: http://localhost:8080/vehicle/search/{model}
+URL: http://localhost:8080/api/v1/vehicles/search/{model}
 Метод: GET
 Параметр пути: String model (модель транспортного средства)
 Доступно для: AUTHENTICATED USER
