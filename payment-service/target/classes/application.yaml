@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
   application:
     name: payment-service
   datasource:
@@ -23,13 +23,11 @@ encryption:
   password: 0123456789ABCDEF
   salt: FEDCBA9876543210
 
-bootstrap:
-  servers: localhost:9092
 
 group:
   id: payment_group
 
 eureka:
   client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

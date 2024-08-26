@@ -11,7 +11,7 @@ import com.project.rental_microservice.dto.requests.ReturnRequest;
 import com.project.rental_microservice.exceptions.RentalNotFoundException;
 import com.project.rental_microservice.repository.RentalRepository;
 import com.project.rental_microservice.service.KafkaProducerService;
-import com.project.rental_microservice.service.RentalServiceImpl;
+import com.project.rental_microservice.service.impl.RentalServiceImpl;
 import com.project.rental_microservice.webclient.VehicleServiceClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

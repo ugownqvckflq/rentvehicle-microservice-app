@@ -12,12 +12,12 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(RoleCheckAspect.UnauthorizedException.class)
-    public ResponseEntity<String> handleUnauthorizedException(RoleCheckAspect.UnauthorizedException ex, WebRequest request) {
+    public ResponseEntity<String> handleUnauthorizedException(RoleCheckAspect.UnauthorizedException ex) {
         return new ResponseEntity<>("Access Denied: " + ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(DuplicateLicensePlateException.class)
-    public ResponseEntity<String> handleDuplicateLicensePlateException(DuplicateLicensePlateException ex, WebRequest request) {
+    public ResponseEntity<String> handleDuplicateLicensePlateException(DuplicateLicensePlateException ex) {
         return new ResponseEntity<>("Duplicate License Plate: " + ex.getMessage(), HttpStatus.CONFLICT);
     }
 

@@ -2,7 +2,6 @@ package com.proj.api_gateway.config;
 
 import com.proj.api_gateway.security.jwt.JwtAuthenticationFilter;
 import com.proj.api_gateway.security.jwt.JwtUtils;
-import com.proj.api_gateway.security.services.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +25,7 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtUtils jwtUtils, UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfig(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
     }
@@ -52,7 +51,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()

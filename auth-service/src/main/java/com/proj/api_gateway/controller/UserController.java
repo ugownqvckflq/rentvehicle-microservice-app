@@ -13,12 +13,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
 
     @Operation(summary = "Назначить роль администратора (только для админа)",
             description = "Назначает роль администратора пользователю по его идентификатору.",

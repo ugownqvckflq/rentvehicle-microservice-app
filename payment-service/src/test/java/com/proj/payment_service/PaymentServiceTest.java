@@ -9,7 +9,7 @@ import com.proj.payment_service.repository.CardRepository;
 import com.proj.payment_service.repository.PaymentRepository;
 import com.proj.payment_service.repository.VehiclePricingRepository;
 import com.proj.payment_service.repository.VehicleRepository;
-import com.proj.payment_service.service.PaymentService;
+import com.proj.payment_service.service.impl.PaymentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,7 +39,7 @@ class PaymentServiceTest {
     private VehicleRepository vehicleRepository;
 
     @InjectMocks
-    private PaymentService paymentService;
+    private PaymentServiceImpl paymentService;
 
     @BeforeEach
     void setUp() {
@@ -74,5 +74,5 @@ class PaymentServiceTest {
         verify(paymentRepository, never()).save(any());
     }
 
-    // Другие тесты для методов chargeUsageCost, chargeInitialCost и т.д.
+
 }

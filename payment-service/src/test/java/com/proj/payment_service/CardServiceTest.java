@@ -4,15 +4,13 @@ import com.proj.payment_service.dto.requests.CardRequest;
 import com.proj.payment_service.entity.Card;
 import com.proj.payment_service.exceptions.CardAlreadyExistsException;
 import com.proj.payment_service.repository.CardRepository;
-import com.proj.payment_service.service.CardService;
+import com.proj.payment_service.service.impl.CardServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.encrypt.Encryptors;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,21 +23,21 @@ class CardServiceTest {
     private CardRepository cardRepository;
 
     @InjectMocks
-    private CardService cardService;
+    private CardServiceImpl cardService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        cardService = new CardService(cardRepository);
+        cardService = new CardServiceImpl(cardRepository);
 
     }
 
     @Test
     void testAddCard_Success() {
         CardRequest cardRequest = new CardRequest();
-        cardRequest.setCardNumber("1234567812345678");
-        cardRequest.setExpiryDate("12/23");
-        cardRequest.setCvv("123");
+        cardRequest.setCardNumber("4434567812345678");
+        cardRequest.setExpiryDate("11/11");
+        cardRequest.setCvv("888");
 
         when(cardRepository.findByCardNumber(cardRequest.getCardNumber())).thenReturn(Optional.empty());
 

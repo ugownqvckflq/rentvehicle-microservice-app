@@ -1,79 +1,32 @@
 package com.proj.payment_service.service;
 
 import com.proj.payment_service.dto.requests.CardRequest;
-
 import com.proj.payment_service.entity.Card;
-import com.proj.payment_service.exceptions.CardAlreadyExistsException;
-import com.proj.payment_service.exceptions.CardNotFoundException;
-import com.proj.payment_service.repository.CardRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.stereotype.Service;
-
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
-@Service
-public class CardService {
+public interface CardService {
 
-    private final CardRepository cardRepository;
+    void addCard(Long userId, CardRequest cardRequest);
 
-    @Value("${encryption.password}")
-    private String encryptionPassword;
+    Card getCardByUserId(Long userId);
 
-    @Value("${encryption.salt}")
-    private String encryptionSalt;
+    void addFunds(Long userId, BigDecimal amount);
 
-    public CardService(CardRepository cardRepository) {
-        this.cardRepository = cardRepository;
-    }
+    void deductFunds(Long userId, BigDecimal amount);
 
-    public void addCard(Long userId, CardRequest cardRequest) {
-        Optional<Card> existingCard = cardRepository.findByCardNumber(cardRequest.getCardNumber());
-        if (existingCard.isPresent()) {
-            throw new CardAlreadyExistsException("Card already exists");
+    BigDecimal getBalance(Long userId);
+
+    static Long extractUserIdFromHeader(HttpServletRequest request) {
+        String userIdStr = request.getHeader("X-User-Id");
+        if (userIdStr == null) {
+            throw new IllegalArgumentException("User ID is missing in the request headers");
         }
-
-        Card card = new Card();
-        card.setUserId(userId);
-        card.setCardNumber(cardRequest.getCardNumber());
-        card.setExpiryDate(cardRequest.getExpiryDate());
-        card.setCvv(encryptCvv(cardRequest.getCvv()));
-        card.setBalance(BigDecimal.ZERO);
-
-        cardRepository.save(card);
-    }
-
-    private String encryptCvv(String cvv) {
-        return Encryptors.text(encryptionPassword, encryptionSalt).encrypt(cvv);
-    }
-
-    public Card getCardByUserId(Long userId) {
-        return cardRepository.findByUserId(userId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found for user: " + userId));
-    }
-
-    @Transactional
-    public void addFunds(Long userId, BigDecimal amount) {
-        Card card = getCardByUserId(userId);
-        card.setBalance(card.getBalance().add(amount));
-        cardRepository.save(card);
-    }
-
-    @Transactional
-    public void deductFunds(Long userId, BigDecimal amount) {
-        Card card = getCardByUserId(userId);
-        if (card.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient balance");
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid user ID format");
         }
-        card.setBalance(card.getBalance().subtract(amount));
-        cardRepository.save(card);
-    }
-
-    public BigDecimal getBalance(Long userId) {
-        Card card = getCardByUserId(userId);
-        return card.getBalance();
     }
 }

@@ -30,7 +30,7 @@ class VehicleIntegrationTest {
         headers.set("X-User-Role", "ROLE_ADMIN");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<Vehicle[]> response = restTemplate.exchange(
-                "/vehicles/all",
+                "/api/v1/vehicles",
                 HttpMethod.GET,
                 entity,
                 Vehicle[].class
@@ -52,7 +52,7 @@ class VehicleIntegrationTest {
         vehicleCreateDTO.setNumberOfDoors(2);
         vehicleCreateDTO.setStatus(Status.AVAILABLE);
 
-        ResponseEntity<Vehicle> response = restTemplate.postForEntity("/vehicles/create", vehicleCreateDTO, Vehicle.class);
+        ResponseEntity<Vehicle> response = restTemplate.postForEntity("/api/v1/vehicles/create", vehicleCreateDTO, Vehicle.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();

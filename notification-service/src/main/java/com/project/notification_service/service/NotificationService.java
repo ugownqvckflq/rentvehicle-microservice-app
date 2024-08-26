@@ -7,6 +7,7 @@ import com.project.notification_service.repository.UserRepository;
 import com.project.notification_service.repository.VehicleRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
 
     private final ResourceLoader resourceLoader;
@@ -30,14 +32,6 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
 
-    @Autowired
-    public NotificationService(ResourceLoader resourceLoader, JavaMailSender emailSender,
-                               UserRepository userRepository, VehicleRepository vehicleRepository) {
-        this.resourceLoader = resourceLoader;
-        this.emailSender = emailSender;
-        this.userRepository = userRepository;
-        this.vehicleRepository = vehicleRepository;
-    }
 
     private String loadTemplate(String templatePath) throws IOException {
         Resource resource = resourceLoader.getResource(templatePath);

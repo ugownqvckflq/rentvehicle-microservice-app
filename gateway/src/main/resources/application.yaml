@@ -7,20 +7,20 @@ spring:
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/auth/**
-            - Path=/users/**
+            - Path=/api/v1/auth/**
+            - Path=/api/v1/users/**
         - id: vehicle-service
           uri: lb://VEHICLE-SERVICE
           predicates:
-            - Path=/vehicles/**
+            - Path=/api/v1/vehicles/**
         - id: rental-service
           uri: lb://RENTAL-SERVICE
           predicates:
-            - Path=/rentals/**
+            - Path=/api/v1/rentals/**
         - id: payment-service
           uri: lb://PAYMENT-SERVICE
           predicates:
-            - Path=/card/**
+            - Path=/api/v1/cards/**
 
 
 
@@ -31,7 +31,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
 
 logging:
   level:
@@ -46,6 +46,3 @@ jwt:
 server:
   port: 8080
   forward-headers-strategy: framework
-
-authentication:
-  enabled: true

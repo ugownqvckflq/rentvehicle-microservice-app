@@ -4,7 +4,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5432/app_db
+    url: jdbc:postgresql://localhost:5432/app_db
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
@@ -12,7 +12,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     change-log: classpath:/db.changelog/vehicle/db.changelog-master.xml
-    url: jdbc:postgresql://host.docker.internal:5432/app_db
+    url: jdbc:postgresql://localhost:5432/app_db
     user: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
@@ -23,5 +23,5 @@ server:
 
 eureka:
   client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

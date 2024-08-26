@@ -44,7 +44,5 @@ public class Rental {
     @Transient // Поле не будет сохраняться в базе данных
     private String duration;
 
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
+
 }

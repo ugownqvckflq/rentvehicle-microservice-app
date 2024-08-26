@@ -2,6 +2,8 @@ package com.project.rental_microservice.exceptions.handler;
 
 import com.project.rental_microservice.dto.responses.ErrorResponse;
 import com.project.rental_microservice.exceptions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +14,9 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
 
     @ExceptionHandler(VehicleNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleVehicleNotFoundException(VehicleNotFoundException ex) {
@@ -38,7 +43,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<String> handleExternalServiceException(ExternalServiceException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("External service error: " + ex.getMessage());
+        // Логирование подробностей ошибки
+        logger.error("External service error occurred: ", ex);
+
+        // Создание подробного ответа
+        String responseMessage = "External service error: " + ex.getMessage();
+        if (!ex.getDetailedMessage().isEmpty()) {
+            responseMessage += " - Details: " + ex.getDetailedMessage();
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMessage);
     }
 
     @ExceptionHandler(WebClientResponseException.class)

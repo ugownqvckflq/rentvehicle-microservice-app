@@ -6,14 +6,12 @@ import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
 import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
-import com.vehicle.vehicle_microservice.services.VehicleServiceImpl;
+import com.vehicle.vehicle_microservice.services.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +20,12 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/api/v1/vehicles")
+@RequiredArgsConstructor
 public class VehicleController {
 
-    private final VehicleServiceImpl vehicleServiceImpl;
+    private final VehicleService vehicleServiceImpl;
 
-    public VehicleController(VehicleServiceImpl vehicleServiceImpl) {
-        this.vehicleServiceImpl = vehicleServiceImpl;
-    }
 
     @Operation(
             summary = "Получить все транспортные средства (только для админа)",
@@ -39,7 +35,7 @@ public class VehicleController {
             }
     )
     @RoleCheck("ROLE_ADMIN")
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<Vehicle>> getAllVehicles() {
         List<Vehicle> vehicles = vehicleServiceImpl.getAllVehicle();
         return ResponseEntity.ok(vehicles);
@@ -88,9 +84,9 @@ public class VehicleController {
             summary = "Получить транспортное средство по номерному знаку",
             description = "Получить транспортное средство по номерному знаку"
     )
-    @GetMapping("/plate/{plate}")
-    public ResponseEntity<Vehicle> getByPlate(@PathVariable String plate) {
-        Optional<Vehicle> vehicle = vehicleServiceImpl.getByPlate(plate);
+    @GetMapping("/license-plates/{licensePlate}")
+    public ResponseEntity<Vehicle> getByPlate(@PathVariable String licensePlate) {
+        Optional<Vehicle> vehicle = vehicleServiceImpl.getByPlate(licensePlate);
         return vehicle.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -127,7 +123,7 @@ public class VehicleController {
             summary = "Установить статус транспортного средства по ID",
             description = "Установить статус транспортного средства по его ID"
     )
-    @PostMapping("/set-status/{id}/{status}")
+    @PostMapping("/{id}/status/{status}")
     public ResponseEntity<Vehicle> setVehicleStatusById(@PathVariable Long id, @PathVariable Status status) {
         Vehicle vehicle = vehicleServiceImpl.getById(id).orElseThrow();
         vehicle.setStatus(status);
@@ -147,4 +143,25 @@ public class VehicleController {
         }
         return ResponseEntity.ok(vehicles);
     }
+
+    @Operation(
+            summary = "Фильтрация транспортных средств",
+            description = "Фильтрует транспортные средства по указанным критериям"
+    )
+    @GetMapping("/filter")
+    public ResponseEntity<List<Vehicle>> filterVehicles(
+            @RequestParam(required = false) String model,
+            @RequestParam(required = false) Double minFuelLevel,
+            @RequestParam(required = false) Double maxFuelLevel,
+            @RequestParam(required = false) Integer minBatteryLevel,
+            @RequestParam(required = false) Integer maxBatteryLevel,
+            @RequestParam(required = false) Status status
+    ) {
+        List<Vehicle> vehicles = vehicleServiceImpl.filterVehicles(model, minFuelLevel, maxFuelLevel, minBatteryLevel, maxBatteryLevel, status);
+        if (vehicles.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(vehicles);
+    }
+
 }

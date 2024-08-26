@@ -1,6 +1,7 @@
 package com.vehicle.vehicle_microservice.services;
 
 import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
 
@@ -17,4 +18,6 @@ public interface VehicleService {
     Optional<Vehicle> getByPlate(String plate);
     List<Vehicle> getAvailableVehicles();
     List<Vehicle> searchVehiclesByModel(String model);
+    List<Vehicle> filterVehicles(String model, Double minFuelLevel, Double maxFuelLevel, Integer minBatteryLevel, Integer maxBatteryLevel, Status status);
+
 }

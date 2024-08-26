@@ -21,21 +21,19 @@ public class User {
 
     private Long id;
 
-
+    @NotBlank(message = "Username is mandatory")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
-
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is mandatory")
     private String email;
 
-
+    @NotBlank(message = "Password is mandatory")
+    @Size(min = 3, max = 100, message = "Password must be between 3 and 100 characters")
     private String password;
-
 
     private Set<Role> roles = new HashSet<>();
 
-    public User(String username, String password){
-        this.username = username;
-        this.password = password;
-    }
 
 }

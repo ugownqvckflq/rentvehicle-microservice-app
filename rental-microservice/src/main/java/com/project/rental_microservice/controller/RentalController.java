@@ -21,23 +21,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rentals")
+@RequestMapping("/api/v1/rentals")
 @RequiredArgsConstructor
 public class RentalController {
 
     private final RentalService rentalService;
-
-    private Long extractUserIdFromHeader(HttpServletRequest request) {
-        String userIdStr = request.getHeader("X-User-Id");
-        if (userIdStr == null) {
-            throw new IllegalArgumentException("User ID is missing in the request headers");
-        }
-        try {
-            return Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            throw new InvalidUserIdFormatException("Invalid user ID format");
-        }
-    }
 
     @Operation(
             summary = "Аренда транспортного средства",
@@ -57,7 +45,7 @@ public class RentalController {
     @PostMapping("/rent")
     public ResponseEntity<Rental> rentVehicle(HttpServletRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody RentalRequest rentalRequest) {
         String jwtToken = authorizationHeader.replace("Bearer ", "");
-        Long userId = extractUserIdFromHeader(request);
+        Long userId = RentalService.extractUserIdFromHeader(request);
 
         return ResponseEntity.ok(rentalService.rentVehicle(userId, rentalRequest, jwtToken));
     }
@@ -106,7 +94,7 @@ public class RentalController {
             }
     )
     @RoleCheck("ROLE_ADMIN")
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}/rentals")
     public ResponseEntity<List<Rental>> getRentalsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(rentalService.getRentalsByUserId(userId));
     }

@@ -8,11 +8,9 @@ import com.project.rolechecker.RoleCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,39 +18,24 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/card")
+@RequestMapping("/api/v1/cards")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final CardService cardService;
 
-    public PaymentController(CardService cardService) {
-        this.cardService = cardService;
-    }
-
-    private Long extractUserIdFromHeader(HttpServletRequest request) {
-        String userIdStr = request.getHeader("X-User-Id");
-        if (userIdStr == null) {
-            throw new IllegalArgumentException("User ID is missing in the request headers");
-        }
-        try {
-            return Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid user ID format");
-        }
-    }
 
     @Operation(summary = "Добавить новую карту",
             description = "Добавляет новую карту в аккаунт пользователя. Требуется ID пользователя в заголовке.",
             parameters = {
                     @Parameter(name = "X-User-Id", description = "Идентификатор пользователя", required = true, in = ParameterIn.HEADER, example = "123")
             })
-
-    @PostMapping("/add-card")
+    @PostMapping
     public ResponseEntity<SuccessResponse> addCard(HttpServletRequest request,
                                                    @Valid @RequestBody CardRequest cardRequest) {
-        Long userId = extractUserIdFromHeader(request);
+        Long userId = CardService.extractUserIdFromHeader(request);
         cardService.addCard(userId, cardRequest);
-        return ResponseEntity.ok(new SuccessResponse("Карта успешно добавлена", LocalDateTime.now()));
+        return ResponseEntity.ok(new SuccessResponse("The card has been added successfully", LocalDateTime.now()));
     }
 
     @Operation(summary = "Пополнить карту пользователя (только для админа)",
@@ -62,14 +45,13 @@ public class PaymentController {
                     @Parameter(name = "X-User-Role", description = "Роль пользователя", required = true, in = ParameterIn.HEADER, example = "ROLE_ADMIN"),
                     @Parameter(name = "amount", description = "Сумма пополнения", required = true, example = "100.00")
             })
-
     @RoleCheck("ROLE_ADMIN")
-    @PostMapping("/add-funds")
+    @PostMapping("/funds")
     public ResponseEntity<SuccessResponse> addFunds(HttpServletRequest request,
                                                     @RequestParam @Parameter(description = "Сумма пополнения", required = true, example = "100.00") BigDecimal amount) {
-        Long userId = extractUserIdFromHeader(request);
+        Long userId = CardService.extractUserIdFromHeader(request);
         cardService.addFunds(userId, amount);
-        return ResponseEntity.ok(new SuccessResponse("Средства успешно добавлены", LocalDateTime.now()));
+        return ResponseEntity.ok(new SuccessResponse("Funds have been added successfully", LocalDateTime.now()));
     }
 
     @Operation(summary = "Снять средства с карты пользователя (только для админа)",
@@ -80,12 +62,12 @@ public class PaymentController {
                     @Parameter(name = "amount", description = "Сумма снятия", required = true, example = "50.00")
             })
     @RoleCheck("ROLE_ADMIN")
-    @PostMapping("/deduct-funds")
+    @PostMapping("/funds/deduct")
     public ResponseEntity<SuccessResponse> deductFunds(HttpServletRequest request,
                                                        @RequestParam @Parameter(description = "Сумма снятия", required = true, example = "50.00") BigDecimal amount) {
-        Long userId = extractUserIdFromHeader(request);
+        Long userId = CardService.extractUserIdFromHeader(request);
         cardService.deductFunds(userId, amount);
-        return ResponseEntity.ok(new SuccessResponse("Средства успешно сняты", LocalDateTime.now()));
+        return ResponseEntity.ok(new SuccessResponse("Funds have been successfully withdrawn", LocalDateTime.now()));
     }
 
     @Operation(summary = "Получить баланс карты пользователя",
@@ -93,10 +75,9 @@ public class PaymentController {
             parameters = {
                     @Parameter(name = "X-User-Id", description = "Идентификатор пользователя", required = true, in = ParameterIn.HEADER, example = "123")
             })
-
     @GetMapping("/balance")
     public ResponseEntity<BalanceResponse> getBalance(HttpServletRequest request) {
-        Long userId = extractUserIdFromHeader(request);
+        Long userId = CardService.extractUserIdFromHeader(request);
         BigDecimal balance = cardService.getBalance(userId);
         return ResponseEntity.ok(new BalanceResponse(balance, LocalDateTime.now()));
     }

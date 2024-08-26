@@ -17,14 +17,15 @@ public class VehicleServiceClient {
 
     private final WebClient webClient;
 
+    private String url = "http://vehicle-service:8082/api/v1/vehicles";
 
     public VehicleServiceClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8082/vehicles").build();
+        this.webClient = webClientBuilder.baseUrl(url).build();
     }
 
     public Mono<VehicleDto> getVehicleByLicensePlate(String plate, String jwtToken) {
         return webClient.get()
-                .uri("/plate/{plate}", plate)
+                .uri("/license-plates/{licensePlate}", plate)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
                 .retrieve()
                 .onStatus(
@@ -33,7 +34,7 @@ public class VehicleServiceClient {
                 )
                 .onStatus(
                         HttpStatusCode::is5xxServerError,
-                        clientResponse -> Mono.error(new ExternalServiceException("External service error"))
+                        clientResponse -> Mono.error(new ExternalServiceException("External service error!!!"))
                 )
                 .bodyToMono(VehicleDto.class)
                 .retry(3) // Повторная попытка до 3 раз при ошибке
@@ -42,7 +43,7 @@ public class VehicleServiceClient {
 
     public void setVehicleStatus(Long vehicleId, String status, String jwtToken) {
         webClient.post()
-                .uri("/set-status/{id}/{status}", vehicleId, status)
+                .uri("/{id}/status/{status}", vehicleId, status)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
                 .retrieve()
                 .onStatus(

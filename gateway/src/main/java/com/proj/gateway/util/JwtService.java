@@ -13,7 +13,6 @@ import java.security.Key;
 @Service
 public class JwtService {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     @Value("${jwt.secret}")
     private String secret;

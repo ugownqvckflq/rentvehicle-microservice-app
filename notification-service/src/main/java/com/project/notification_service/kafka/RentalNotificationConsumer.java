@@ -2,21 +2,20 @@ package com.project.notification_service.kafka;
 
 import com.project.notification_service.dto.Rental;
 import com.project.notification_service.service.NotificationService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RentalNotificationConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(RentalNotificationConsumer.class);
 
     private final NotificationService notificationService;
 
-    public RentalNotificationConsumer(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
 
     @KafkaListener(topics = "rental_topic", groupId = "notification_group")
     public void listenRentalEvents(Rental rental) {

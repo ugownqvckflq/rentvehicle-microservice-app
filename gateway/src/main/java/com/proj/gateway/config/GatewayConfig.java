@@ -15,10 +15,6 @@ import org.springframework.web.cors.reactive.CorsWebFilter;
 @Configuration
 public class GatewayConfig {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public GatewayConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
@@ -29,18 +25,18 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route(r -> r.path("/users/**")
+                .route(r -> r.path("/api/v1/auth/**")
+                        .uri("lb://AUTH-SERVICE"))
+                .route(r -> r.path("/api/v1/users/**")
                         .filters(f -> f.filter(jwtAuthenticationFilter))
                         .uri("lb://AUTH-SERVICE"))
-                .route(r -> r.path("/auth/**")
-                        .uri("lb://AUTH-SERVICE"))
-                .route(r -> r.path("/vehicles/**")
+                .route(r -> r.path("/api/v1/vehicles/**")
                         .filters(f -> f.filter(jwtAuthenticationFilter))
                         .uri("lb://VEHICLE-SERVICE"))
-                .route(r -> r.path("/rentals/**")
+                .route(r -> r.path("/api/v1/rentals/**")
                         .filters(f -> f.filter(jwtAuthenticationFilter))
                         .uri("lb://RENTAL-SERVICE"))
-                .route(r -> r.path("/card/**")
+                .route(r -> r.path("/api/v1/cards/**")
                         .filters(f -> f.filter(jwtAuthenticationFilter))
                         .uri("lb://PAYMENT-SERVICE"))
                 .build();
