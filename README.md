@@ -48,16 +48,18 @@
 ###  VI. Запускаем приложение
 Запуск без использования docker
 1. Клонируем проект в среду разработки
-2. Запускаем локально zookeeper и kafka (либо же в docker compose файле можно запустить 2 контейнера с ними)
-3. Создаем базу postgres с названием app_db
-4. Запускаем приложения в таком порядке: 1. Eureka-server -> 2. Auth-service -> 3.Vehicle-service -> 4.Rental-service -> 5. Payment-service -> 6.Notification-service -> 7. Gateway
+2. В директории gateway в файле .env убеждаемся что адрес для kafka стоит: localhost:9092
+3. Запускаем локально zookeeper и kafka (либо же в docker compose файле можно запустить 2 контейнера с ними)
+4. Создаем базу postgres с названием app_db
+5. Запускаем приложения в таком порядке: 1. Eureka-server -> 2. Auth-service -> 3.Vehicle-service -> 4.Rental-service -> 5. Payment-service -> 6.Notification-service -> 7. Gateway
 
 
 Запуск с docker
 1. Клонируем проект в среду разработки
-2. Убедитесь что Java 17, docker compose 3.x
-3. Запустить приложение можно терминальной командой "cd .\gateway\; docker-compose up -d" (в настройках docker desktop лучше установить параметр Memory limit от 4gb)
-4. При успешном запуске приложения, можно пользоваться подключенными API
+2. В директории gateway в файле .env убеждаемся что адрес для kafka стоит: kafka:9092
+3. Убедитесь что Java 17, docker compose 3.x
+4. Запустить приложение можно терминальной командой "cd .\gateway\; docker-compose up -d" (в настройках docker desktop лучше установить параметр Memory limit от 4gb)
+5. При успешном запуске приложения, можно пользоваться подключенными API
 
 
 ### Вход в систему
