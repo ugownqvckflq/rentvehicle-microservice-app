@@ -3,7 +3,7 @@ package com.proj.payment_service;
 import com.proj.payment_service.dto.requests.CardRequest;
 import com.proj.payment_service.dto.responses.BalanceResponse;
 import com.proj.payment_service.dto.responses.SuccessResponse;
-import com.proj.payment_service.service.impl.CardServiceImpl;
+import com.proj.payment_service.service.CardServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

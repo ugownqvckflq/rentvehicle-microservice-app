@@ -1,4 +1,4 @@
-package com.proj.payment_service.service.impl;
+package com.proj.payment_service.service;
 
 
 import com.proj.payment_service.dto.Rental;

@@ -4,7 +4,7 @@ import com.proj.payment_service.dto.requests.CardRequest;
 import com.proj.payment_service.entity.Card;
 import com.proj.payment_service.exceptions.CardAlreadyExistsException;
 import com.proj.payment_service.repository.CardRepository;
-import com.proj.payment_service.service.impl.CardServiceImpl;
+import com.proj.payment_service.service.CardServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

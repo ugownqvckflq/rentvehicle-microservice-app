@@ -9,7 +9,7 @@ import com.proj.payment_service.repository.CardRepository;
 import com.proj.payment_service.repository.PaymentRepository;
 import com.proj.payment_service.repository.VehiclePricingRepository;
 import com.proj.payment_service.repository.VehicleRepository;
-import com.proj.payment_service.service.impl.PaymentServiceImpl;
+import com.proj.payment_service.service.PaymentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

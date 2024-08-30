@@ -1,7 +1,7 @@
 package com.proj.payment_service.kafka;
 
 import com.proj.payment_service.dto.Rental;
-import com.proj.payment_service.service.impl.PaymentServiceImpl;
+import com.proj.payment_service.service.PaymentServiceImpl;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
