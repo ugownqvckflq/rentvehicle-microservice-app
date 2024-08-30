@@ -4,7 +4,7 @@ import com.vehicle.vehicle_microservice.controller.VehicleController;
 import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
 import com.vehicle.vehicle_microservice.entity.Car;
 import com.vehicle.vehicle_microservice.entity.Status;
-import com.vehicle.vehicle_microservice.services.impl.VehicleServiceImpl;
+import com.vehicle.vehicle_microservice.services.VehicleServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

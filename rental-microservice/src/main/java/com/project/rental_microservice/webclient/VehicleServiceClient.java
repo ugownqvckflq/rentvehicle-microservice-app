@@ -17,7 +17,8 @@ public class VehicleServiceClient {
 
     private final WebClient webClient;
 
-    private String url = "http://vehicle-service:8082/api/v1/vehicles";
+    @Value("${vehicle-service.url}")
+    private String url;
 
     public VehicleServiceClient(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl(url).build();

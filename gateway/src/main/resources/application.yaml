@@ -23,15 +23,13 @@ spring:
             - Path=/api/v1/cards/**
 
 
-
-
   main:
     web-application-type: reactive
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
 
 logging:
   level:

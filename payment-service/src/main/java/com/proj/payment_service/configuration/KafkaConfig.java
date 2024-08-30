@@ -22,12 +22,17 @@ import java.util.Map;
 public class KafkaConfig {
 
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    String bootstrapServers;
+
+    @Value("${group.id}")
+    String groupId;
     @Bean
     public ConsumerFactory<String, Rental> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        String bootstrapServers = "kafka:9092";
+
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        String groupId = "payment_group";
+
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);

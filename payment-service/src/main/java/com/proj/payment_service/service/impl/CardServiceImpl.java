@@ -30,6 +30,7 @@ public class CardServiceImpl implements CardService {
     private String encryptionSalt;
 
 
+    @Transactional
     public void addCard(Long userId, CardRequest cardRequest) {
         Optional<Card> existingCard = cardRepository.findByCardNumber(cardRequest.getCardNumber());
         if (existingCard.isPresent()) {

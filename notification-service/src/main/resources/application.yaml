@@ -11,13 +11,14 @@ spring:
           starttls:
             enable: true
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:9092
   datasource:
     url: jdbc:postgresql://localhost:5432/app_db
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
 
-
+kafka:
+  group: notification_group
 server:
   port: 8085

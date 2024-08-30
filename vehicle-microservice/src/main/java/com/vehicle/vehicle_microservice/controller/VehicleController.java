@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VehicleController {
 
-    private final VehicleService vehicleServiceImpl;
+    private final VehicleService vehicleService;
 
 
     @Operation(
@@ -37,7 +37,7 @@ public class VehicleController {
     @RoleCheck("ROLE_ADMIN")
     @GetMapping
     public ResponseEntity<List<Vehicle>> getAllVehicles() {
-        List<Vehicle> vehicles = vehicleServiceImpl.getAllVehicle();
+        List<Vehicle> vehicles = vehicleService.getAllVehicle();
         return ResponseEntity.ok(vehicles);
     }
 
@@ -47,7 +47,7 @@ public class VehicleController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<Vehicle> getVehicleById(@PathVariable Long id) {
-        Optional<Vehicle> vehicle = vehicleServiceImpl.getById(id);
+        Optional<Vehicle> vehicle = vehicleService.getById(id);
         return vehicle.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -58,7 +58,7 @@ public class VehicleController {
     @PostMapping("/create")
     public ResponseEntity<Vehicle> createVehicle(@RequestBody VehicleCreateDTO vehicleCreateDTO) {
         try {
-            Vehicle savedVehicle = vehicleServiceImpl.createVehicle(vehicleCreateDTO);
+            Vehicle savedVehicle = vehicleService.createVehicle(vehicleCreateDTO);
             return ResponseEntity.ok(savedVehicle);
         } catch (DuplicateLicensePlateException e) {
             // Обработка исключения передается глобальному обработчику
@@ -76,7 +76,7 @@ public class VehicleController {
     @RoleCheck("ROLE_ADMIN")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
-        vehicleServiceImpl.deleteVehicle(id);
+        vehicleService.deleteVehicle(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -86,7 +86,7 @@ public class VehicleController {
     )
     @GetMapping("/license-plates/{licensePlate}")
     public ResponseEntity<Vehicle> getByPlate(@PathVariable String licensePlate) {
-        Optional<Vehicle> vehicle = vehicleServiceImpl.getByPlate(licensePlate);
+        Optional<Vehicle> vehicle = vehicleService.getByPlate(licensePlate);
         return vehicle.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -100,12 +100,12 @@ public class VehicleController {
     @RoleCheck("ROLE_ADMIN")
     @PutMapping("/{id}")
     public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long id, @RequestBody VehicleCreateDTO vehicleCreateDTO) {
-        Optional<Vehicle> vehicleOptional = vehicleServiceImpl.getById(id);
+        Optional<Vehicle> vehicleOptional = vehicleService.getById(id);
         if (vehicleOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Vehicle existingVehicle = vehicleOptional.get();
-        Vehicle updatedVehicle = vehicleServiceImpl.updateVehicle(existingVehicle, vehicleCreateDTO);
+        Vehicle updatedVehicle = vehicleService.updateVehicle(existingVehicle, vehicleCreateDTO);
         return ResponseEntity.ok(updatedVehicle);
     }
 
@@ -115,7 +115,7 @@ public class VehicleController {
     )
     @GetMapping("/available")
     public ResponseEntity<List<Vehicle>> getAvailableVehicles() {
-        List<Vehicle> availableVehicles = vehicleServiceImpl.getAvailableVehicles();
+        List<Vehicle> availableVehicles = vehicleService.getAvailableVehicles();
         return ResponseEntity.ok(availableVehicles);
     }
 
@@ -125,9 +125,9 @@ public class VehicleController {
     )
     @PostMapping("/{id}/status/{status}")
     public ResponseEntity<Vehicle> setVehicleStatusById(@PathVariable Long id, @PathVariable Status status) {
-        Vehicle vehicle = vehicleServiceImpl.getById(id).orElseThrow();
+        Vehicle vehicle = vehicleService.getById(id).orElseThrow();
         vehicle.setStatus(status);
-        vehicleServiceImpl.saveVehicle(vehicle);
+        vehicleService.saveVehicle(vehicle);
         return ResponseEntity.ok(vehicle);
     }
 
@@ -137,7 +137,7 @@ public class VehicleController {
     )
     @GetMapping("/search/{model}")
     public ResponseEntity<List<Vehicle>> searchVehiclesByModel(@PathVariable String model) {
-        List<Vehicle> vehicles = vehicleServiceImpl.searchVehiclesByModel(model);
+        List<Vehicle> vehicles = vehicleService.searchVehiclesByModel(model);
         if (vehicles.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -157,7 +157,7 @@ public class VehicleController {
             @RequestParam(required = false) Integer maxBatteryLevel,
             @RequestParam(required = false) Status status
     ) {
-        List<Vehicle> vehicles = vehicleServiceImpl.filterVehicles(model, minFuelLevel, maxFuelLevel, minBatteryLevel, maxBatteryLevel, status);
+        List<Vehicle> vehicles = vehicleService.filterVehicles(model, minFuelLevel, maxFuelLevel, minBatteryLevel, maxBatteryLevel, status);
         if (vehicles.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

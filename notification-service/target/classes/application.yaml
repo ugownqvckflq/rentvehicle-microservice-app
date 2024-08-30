@@ -18,5 +18,7 @@ spring:
     password: 12345
     driver-class-name: org.postgresql.Driver
 
+kafka:
+  group: notification_group
 server:
   port: 8085

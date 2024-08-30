@@ -16,11 +16,14 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    private final String bootstrapServers = "kafka:9092";
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
+    @Value("${topic.name}")
+    private String topic;
     @Bean
     public NewTopic newTopic(){
-        return new NewTopic("rental_topic", 1, (short) 1 );
+        return new NewTopic(topic, 1, (short) 1 );
     }
 
 

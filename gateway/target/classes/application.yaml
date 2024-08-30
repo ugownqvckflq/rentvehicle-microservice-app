@@ -23,8 +23,6 @@ spring:
             - Path=/api/v1/cards/**
 
 
-
-
   main:
     web-application-type: reactive
 
@@ -46,6 +44,3 @@ jwt:
 server:
   port: 8080
   forward-headers-strategy: framework
-
-authentication:
-  enabled: true

@@ -6,7 +6,7 @@ import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
 import com.vehicle.vehicle_microservice.repository.VehicleRepository;
-import com.vehicle.vehicle_microservice.services.impl.VehicleServiceImpl;
+import com.vehicle.vehicle_microservice.services.VehicleServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
