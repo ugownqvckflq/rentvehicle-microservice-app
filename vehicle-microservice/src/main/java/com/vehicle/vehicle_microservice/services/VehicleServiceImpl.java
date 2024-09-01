@@ -1,6 +1,6 @@
 package com.vehicle.vehicle_microservice.services;
 
-import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.dto.VehicleDto;
 import com.vehicle.vehicle_microservice.entity.Car;
 import com.vehicle.vehicle_microservice.entity.Scooter;
 import com.vehicle.vehicle_microservice.entity.Status;
@@ -9,7 +9,6 @@ import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateExceptio
 import com.vehicle.vehicle_microservice.repository.VehicleRepository;
 
 
-import com.vehicle.vehicle_microservice.services.VehicleService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,7 +23,6 @@ public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
 
-
     @Override
     public List<Vehicle> getAllVehicle() {
         return vehicleRepository.findAll();
@@ -37,7 +35,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional
-    public Vehicle createVehicle(VehicleCreateDTO vehicleCreateDTO) {
+    public Vehicle createVehicle(VehicleDto vehicleCreateDTO) {
         Vehicle vehicle;
 
         switch (vehicleCreateDTO.getVehicleType()) {
@@ -79,7 +77,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle updateVehicle(Vehicle existingVehicle, VehicleCreateDTO vehicleCreateDTO) {
+    public Vehicle updateVehicle(Vehicle existingVehicle, VehicleDto vehicleCreateDTO) {
         existingVehicle.setModel(vehicleCreateDTO.getModel());
         existingVehicle.setSpeed(vehicleCreateDTO.getSpeed());
         existingVehicle.setLicensePlate(vehicleCreateDTO.getLicensePlate());

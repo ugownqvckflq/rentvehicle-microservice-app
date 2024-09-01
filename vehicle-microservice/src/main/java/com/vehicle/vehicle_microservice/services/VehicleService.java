@@ -1,6 +1,6 @@
 package com.vehicle.vehicle_microservice.services;
 
-import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.dto.VehicleDto;
 import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
@@ -11,9 +11,9 @@ import java.util.Optional;
 public interface VehicleService {
     List<Vehicle> getAllVehicle();
     Optional<Vehicle> getById(Long id);
-    Vehicle createVehicle(VehicleCreateDTO vehicleCreateDTO) throws DuplicateLicensePlateException;
+    Vehicle createVehicle(VehicleDto vehicleCreateDTO) throws DuplicateLicensePlateException;
     void saveVehicle(Vehicle vehicle);
-    Vehicle updateVehicle(Vehicle existingVehicle, VehicleCreateDTO vehicleCreateDTO);
+    Vehicle updateVehicle(Vehicle existingVehicle, VehicleDto vehicleCreateDTO);
     void deleteVehicle(Long id);
     Optional<Vehicle> getByPlate(String plate);
     List<Vehicle> getAvailableVehicles();

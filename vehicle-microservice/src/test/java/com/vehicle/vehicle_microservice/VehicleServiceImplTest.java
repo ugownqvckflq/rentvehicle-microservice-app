@@ -1,6 +1,6 @@
 package com.vehicle.vehicle_microservice;
 
-import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.dto.VehicleDto;
 import com.vehicle.vehicle_microservice.entity.Car;
 import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
@@ -32,7 +32,7 @@ class VehicleServiceImplTest {
 
     @Test
     void testCreateVehicle_Car() {
-        VehicleCreateDTO vehicleCreateDTO = new VehicleCreateDTO();
+        VehicleDto vehicleCreateDTO = new VehicleDto();
         vehicleCreateDTO.setModel("Ferrari 488");
         vehicleCreateDTO.setSpeed(211.00);
         vehicleCreateDTO.setLicensePlate("FF-488");
@@ -60,7 +60,7 @@ class VehicleServiceImplTest {
 
     @Test
     void testCreateVehicle_DuplicateLicensePlate() {
-        VehicleCreateDTO vehicleCreateDTO = new VehicleCreateDTO();
+        VehicleDto vehicleCreateDTO = new VehicleDto();
         vehicleCreateDTO.setLicensePlate("FF-488");
         vehicleCreateDTO.setVehicleType("CAR");
 

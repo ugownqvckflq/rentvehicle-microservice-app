@@ -2,7 +2,7 @@ package com.vehicle.vehicle_microservice.controller;
 
 
 import com.project.rolechecker.RoleCheck;
-import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.dto.VehicleDto;
 import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.exceptions.DuplicateLicensePlateException;
@@ -28,13 +28,12 @@ public class VehicleController {
 
 
     @Operation(
-            summary = "Получить все транспортные средства (только для админа)",
+            summary = "Получить все транспортные средства",
             description = "Получить список всех транспортных средств",
             parameters = {
                     @Parameter(name = "X-User-Role", in = ParameterIn.HEADER, description = "Роль пользователя", required = false, example = "ROLE_ADMIN")
             }
     )
-    @RoleCheck("ROLE_ADMIN")
     @GetMapping
     public ResponseEntity<List<Vehicle>> getAllVehicles() {
         List<Vehicle> vehicles = vehicleService.getAllVehicle();
@@ -56,7 +55,7 @@ public class VehicleController {
             description = "Создать новое транспортное средство с указанными данными"
     )
     @PostMapping("/create")
-    public ResponseEntity<Vehicle> createVehicle(@RequestBody VehicleCreateDTO vehicleCreateDTO) {
+    public ResponseEntity<Vehicle> createVehicle(@RequestBody VehicleDto vehicleCreateDTO) {
         try {
             Vehicle savedVehicle = vehicleService.createVehicle(vehicleCreateDTO);
             return ResponseEntity.ok(savedVehicle);
@@ -99,7 +98,7 @@ public class VehicleController {
     )
     @RoleCheck("ROLE_ADMIN")
     @PutMapping("/{id}")
-    public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long id, @RequestBody VehicleCreateDTO vehicleCreateDTO) {
+    public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleCreateDTO) {
         Optional<Vehicle> vehicleOptional = vehicleService.getById(id);
         if (vehicleOptional.isEmpty()) {
             return ResponseEntity.notFound().build();

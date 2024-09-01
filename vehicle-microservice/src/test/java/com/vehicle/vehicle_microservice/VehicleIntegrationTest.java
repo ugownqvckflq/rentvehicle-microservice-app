@@ -1,6 +1,6 @@
 package com.vehicle.vehicle_microservice;
 
-import com.vehicle.vehicle_microservice.dto.VehicleCreateDTO;
+import com.vehicle.vehicle_microservice.dto.VehicleDto;
 import com.vehicle.vehicle_microservice.entity.Status;
 import com.vehicle.vehicle_microservice.entity.Vehicle;
 import com.vehicle.vehicle_microservice.repository.VehicleRepository;
@@ -42,7 +42,7 @@ class VehicleIntegrationTest {
 
     @Test
     void testCreateVehicle() {
-        VehicleCreateDTO vehicleCreateDTO = new VehicleCreateDTO();
+        VehicleDto vehicleCreateDTO = new VehicleDto();
         vehicleCreateDTO.setModel("Ferrari 488");
         vehicleCreateDTO.setSpeed(211.00);
         vehicleCreateDTO.setLicensePlate("FF-440");
@@ -61,8 +61,6 @@ class VehicleIntegrationTest {
         Optional<Vehicle> vehicles = vehicleRepository.findByLicensePlate("FF-440");
         assertThat(vehicles).isNotEmpty();
     }
-
-
 
 
 }
