@@ -6,7 +6,6 @@
 
     <changeSet id="3-insert-cards-data" author="Nick">
         <insert tableName="cards">
-            <column name="id" value="1"/>
             <column name="user_id" value="1"/>
             <column name="card_number" value="4330012345678901"/>
             <column name="expiry_date" value="09/30"/>
@@ -15,7 +14,6 @@
         </insert>
 
         <insert tableName="cards">
-            <column name="id" value="2"/>
             <column name="user_id" value="2"/>
             <column name="card_number" value="4330065432178901"/>
             <column name="expiry_date" value="09/31"/>

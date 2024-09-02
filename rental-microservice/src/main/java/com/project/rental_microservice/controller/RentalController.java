@@ -5,6 +5,7 @@ import com.project.rental_microservice.dto.requests.ReturnRequest;
 import com.project.rental_microservice.entity.Rental;
 import com.project.rental_microservice.exceptions.InvalidUserIdFormatException;
 import com.project.rental_microservice.service.RentalService;
+import com.project.rental_microservice.service.jwt.JwtUtils;
 import com.project.rolechecker.RoleCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,7 +45,7 @@ public class RentalController {
     )
     @PostMapping("/rent")
     public ResponseEntity<Rental> rentVehicle(HttpServletRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody RentalRequest rentalRequest) {
-        String jwtToken = authorizationHeader.replace("Bearer ", "");
+        String jwtToken = JwtUtils.extractToken(authorizationHeader);
         Long userId = RentalService.extractUserIdFromHeader(request);
 
         return ResponseEntity.ok(rentalService.rentVehicle(userId, rentalRequest, jwtToken));
@@ -66,8 +67,7 @@ public class RentalController {
     )
     @PostMapping("/return")
     public ResponseEntity<Rental> returnVehicle(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody ReturnRequest returnRequest) {
-        String jwtToken = authorizationHeader.replace("Bearer ", "");
-
+        String jwtToken = JwtUtils.extractToken(authorizationHeader);
         return ResponseEntity.ok(rentalService.returnVehicle(returnRequest, jwtToken));
     }
 

@@ -1,11 +1,10 @@
 package com.project.rental_microservice.dto.requests;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 public class RentalRequest {
     @NotBlank(message = "License plate is required")
     private String licensePlate;

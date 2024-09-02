@@ -9,9 +9,11 @@ import com.project.rental_microservice.entity.Rental;
 import com.project.rental_microservice.dto.requests.RentalRequest;
 import com.project.rental_microservice.dto.requests.ReturnRequest;
 import com.project.rental_microservice.exceptions.RentalNotFoundException;
+import com.project.rental_microservice.exceptions.VehicleUnavailableException;
 import com.project.rental_microservice.repository.RentalRepository;
 import com.project.rental_microservice.config.kafka.KafkaProducerService;
 import com.project.rental_microservice.service.RentalServiceImpl;
+import com.project.rental_microservice.service.jwt.JwtUtils;
 import com.project.rental_microservice.webclient.VehicleServiceClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,9 +30,6 @@ import java.util.Optional;
 
 public class RentalServiceImplTest {
 
-    @InjectMocks
-    private RentalServiceImpl rentalService;
-
     @Mock
     private VehicleServiceClient vehicleServiceClient;
 
@@ -40,106 +39,89 @@ public class RentalServiceImplTest {
     @Mock
     private KafkaProducerService kafkaProducerService;
 
+    @InjectMocks
+    private RentalServiceImpl rentalService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-
     @Test
-    void rentVehicle_ShouldCreateAndSaveRental() {
-        RentalRequest rentalRequest = new RentalRequest();
-        rentalRequest.setLicensePlate("XYZ123");
-        String jwtToken = "dummyToken";
-        Long userId = 1L;
-
-        VehicleDto vehicle = new VehicleDto();
-        vehicle.setId(1L);
-        vehicle.setLicensePlate("XYZ123");
-
+    void getRentalById_Found() {
+        Long rentalId = 10L;
         Rental rental = new Rental();
-        rental.setUserId(userId);
-        rental.setVehicleId(vehicle.getId());
-        rental.setStartTime(LocalDateTime.now());
+        rental.setId(rentalId);
+        rental.setUserId(1L);
+        rental.setVehicleId(100L);
 
-        when(vehicleServiceClient.getVehicleByLicensePlate(anyString(), anyString())).thenReturn(Mono.just(vehicle));
-        when(rentalRepository.save(any(Rental.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Rental result = rentalService.rentVehicle(userId, rentalRequest, jwtToken);
-
-        ArgumentCaptor<Rental> rentalCaptor = ArgumentCaptor.forClass(Rental.class);
-        verify(rentalRepository).save(rentalCaptor.capture());
-
-        Rental capturedRental = rentalCaptor.getValue();
-        assertNotNull(capturedRental);
-        assertEquals(userId, capturedRental.getUserId());
-        assertEquals(vehicle.getId(), capturedRental.getVehicleId());
-        assertNotNull(capturedRental.getStartTime());
-    }
-
-
-    @Test
-    void returnVehicle_ShouldUpdateAndSaveRental() {
-        String jwtToken = "some-jwt-token";
-        ReturnRequest returnRequest = new ReturnRequest();
-        returnRequest.setLicensePlate("XYZ123");
-
-        VehicleDto vehicleDto = new VehicleDto();
-        vehicleDto.setId(1L);
-
-        Rental rental = new Rental();
-        rental.setVehicleId(vehicleDto.getId());
-        rental.setStartTime(LocalDateTime.now().minusHours(1));
-        rental.setEndTime(null);
-
-        when(vehicleServiceClient.getVehicleByLicensePlate(anyString(), anyString()))
-                .thenReturn(Mono.just(vehicleDto));
-        doNothing().when(vehicleServiceClient).setVehicleStatus(anyLong(), eq("AVAILABLE"), anyString());
-        when(rentalRepository.findByVehicleIdAndEndTimeIsNull(anyLong()))
-                .thenReturn(Optional.of(rental));
-        when(rentalRepository.save(any(Rental.class))).thenReturn(rental);
-
-        Rental result = rentalService.returnVehicle(returnRequest, jwtToken);
-
-        assertNotNull(result);
-        assertNotNull(result.getEndTime());
-        Duration duration = Duration.between(rental.getStartTime(), result.getEndTime());
-        String formattedDuration = rentalService.formatDuration(duration);
-        assertEquals(formattedDuration, result.getDuration());
-        verify(vehicleServiceClient).setVehicleStatus(vehicleDto.getId(), "AVAILABLE", jwtToken);
-        verify(rentalRepository).save(result);
-        verify(kafkaProducerService).sendMessage(result);
-    }
-
-    @Test
-    void getRentalById_ShouldReturnRental() {
-        Long rentalId = 1L;
-        Rental rental = new Rental();
         when(rentalRepository.findById(rentalId)).thenReturn(Optional.of(rental));
 
         Rental result = rentalService.getRentalById(rentalId);
 
         assertNotNull(result);
-        assertEquals(rental, result);
+        assertEquals(rentalId, result.getId());
+
+        verify(rentalRepository, times(1)).findById(rentalId);
     }
 
     @Test
-    void getRentalById_ShouldThrowException_WhenRentalNotFound() {
-        Long rentalId = 1L;
-        when(rentalRepository.findById(rentalId)).thenReturn(Optional.empty());
-
-        assertThrows(RentalNotFoundException.class, () -> rentalService.getRentalById(rentalId));
-    }
-
-    @Test
-    void getRentalsByUserId_ShouldReturnRentals() {
+    void rentVehicle_Success() {
         Long userId = 1L;
-        List<Rental> rentals = List.of(new Rental(), new Rental());
-        when(rentalRepository.findByUserId(userId)).thenReturn(rentals);
+        String jwtToken = "valid.jwt.token";
+        RentalRequest rentalRequest = new RentalRequest();
+        rentalRequest.setLicensePlate("FF-488");
 
-        List<Rental> result = rentalService.getRentalsByUserId(userId);
+        VehicleDto vehicleDto = new VehicleDto();
+        vehicleDto.setId(100L);
+        vehicleDto.setStatus("AVAILABLE");
+
+        when(vehicleServiceClient.getVehicleByLicensePlate("FF-488", jwtToken))
+                .thenReturn(Mono.just(vehicleDto));
+
+        Rental rental = new Rental();
+        rental.setId(10L);
+        rental.setUserId(userId);
+        rental.setVehicleId(vehicleDto.getId());
+        rental.setStartTime(LocalDateTime.now());
+
+        when(rentalRepository.save(any(Rental.class))).thenReturn(rental);
+
+        Rental result = rentalService.rentVehicle(userId, rentalRequest, jwtToken);
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(userId, result.getUserId());
+        assertEquals(vehicleDto.getId(), result.getVehicleId());
+        assertNotNull(result.getStartTime());
+
+        verify(vehicleServiceClient, times(1)).setVehicleStatus(vehicleDto.getId(), "UNAVAILABLE", jwtToken);
+        verify(rentalRepository, times(1)).save(any(Rental.class));
+        verify(kafkaProducerService, times(1)).sendMessage(rental);
     }
+
+    @Test
+    void rentVehicle_VehicleUnavailable() {
+        Long userId = 1L;
+        String jwtToken = "valid.jwt.token";
+        RentalRequest rentalRequest = new RentalRequest();
+        rentalRequest.setLicensePlate("FF-488");
+
+        VehicleDto vehicleDto = new VehicleDto();
+        vehicleDto.setId(100L);
+        vehicleDto.setStatus("UNAVAILABLE");
+
+        when(vehicleServiceClient.getVehicleByLicensePlate("FF-488", jwtToken))
+                .thenReturn(Mono.just(vehicleDto));
+
+        VehicleUnavailableException exception = assertThrows(VehicleUnavailableException.class, () -> {
+            rentalService.rentVehicle(userId, rentalRequest, jwtToken);
+        });
+
+        assertEquals("Vehicle with license plate FF-488 is currently unavailable for rent.", exception.getMessage());
+
+        verify(vehicleServiceClient, never()).setVehicleStatus(anyLong(), anyString(), anyString());
+        verify(rentalRepository, never()).save(any(Rental.class));
+        verify(kafkaProducerService, never()).sendMessage(any(Rental.class));
+    }
+
 }

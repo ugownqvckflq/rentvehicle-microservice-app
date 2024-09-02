@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ReturnRequest {
+
     @NotBlank(message = "License plate is required")
     private String licensePlate;
 }

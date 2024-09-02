@@ -6,7 +6,6 @@ import com.proj.payment_service.entity.Card;
 import com.proj.payment_service.exceptions.CardAlreadyExistsException;
 import com.proj.payment_service.exceptions.CardNotFoundException;
 import com.proj.payment_service.repository.CardRepository;
-import com.proj.payment_service.service.CardService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

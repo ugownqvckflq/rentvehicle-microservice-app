@@ -26,6 +26,9 @@ server:
 topic:
   name: rental_topic
 
+jwt:
+  secret: jsuaiqlsmdjkalskdjkjahjdjsdyuakkajsjdhuasnbdjadyaysdhkasjdhjsdugjkksas
+
 logging:
   level:
     root: INFO

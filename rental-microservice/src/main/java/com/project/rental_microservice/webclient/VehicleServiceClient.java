@@ -4,7 +4,6 @@ import com.project.rental_microservice.dto.VehicleDto;
 import com.project.rental_microservice.exceptions.ExternalServiceException;
 import com.project.rental_microservice.exceptions.VehicleNotFoundException;
 import com.project.rental_microservice.exceptions.VehicleStatusUpdateException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -17,21 +16,20 @@ public class VehicleServiceClient {
 
     private final WebClient webClient;
 
-    @Value("${vehicle-service.url}")
-    private String url;
+    private String url = "http://localhost:8082/api/v1/vehicles"; //через value почему-то не работало
 
     public VehicleServiceClient(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl(url).build();
     }
 
-    public Mono<VehicleDto> getVehicleByLicensePlate(String plate, String jwtToken) {
+    public Mono<VehicleDto> getVehicleByLicensePlate(String licensePlate, String jwtToken) {
         return webClient.get()
-                .uri("/license-plates/{licensePlate}", plate)
+                .uri("/license-plates/{licensePlate}", licensePlate)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
                 .retrieve()
                 .onStatus(
                         HttpStatusCode::is4xxClientError,
-                        clientResponse -> Mono.error(new VehicleNotFoundException("Vehicle with plate number " + plate + " not found"))
+                        clientResponse -> Mono.error(new VehicleNotFoundException("Vehicle with plate number " + licensePlate + " not found"))
                 )
                 .onStatus(
                         HttpStatusCode::is5xxServerError,
