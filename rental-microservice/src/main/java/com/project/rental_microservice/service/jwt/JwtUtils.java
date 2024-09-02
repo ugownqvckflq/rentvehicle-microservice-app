@@ -8,8 +8,7 @@ import java.security.Key;
 
 public class JwtUtils {
 
-    @Value("${jwt.secret}")
-    private static String jwtSecret;
+    private static String jwtSecret = "jsuaiqlsmdjkalskdjkjahjdjsdyuakkajsjdhuasnbdjadyaysdhkasjdhjsdugjkksas";
 
     public static Long getUserIdFromJwtToken(String token) {
         return Jwts.parserBuilder()
