@@ -24,8 +24,8 @@ public class UserController {
             parameters = {
                     @Parameter(name = "X-User-Role", description = "Роль пользователя", required = true, in = ParameterIn.HEADER, example = "ROLE_ADMIN")
             })
-    @PostMapping("/grant-admin/{id}")
     @RoleCheck("ROLE_ADMIN")
+    @PostMapping("/grant-admin/{id}")
     public ResponseEntity<?> grantAdminRole(@PathVariable Long id) {
         userService.grantAdminRole(id);
         return ResponseEntity.ok("You added admin!");
@@ -45,8 +45,8 @@ public class UserController {
             parameters = {
                     @Parameter(name = "X-User-Role", description = "Роль пользователя", required = true, in = ParameterIn.HEADER, example = "ROLE_ADMIN")
             })
-    @PostMapping("/ban/{id}")
     @RoleCheck("ROLE_ADMIN")
+    @PostMapping("/ban/{id}")
     public ResponseEntity<?> banUser(@PathVariable Long id) {
         userService.banUser(id);
         return ResponseEntity.ok("User has been banned!");
@@ -57,8 +57,8 @@ public class UserController {
             parameters = {
                     @Parameter(name = "X-User-Role", description = "Роль пользователя", required = true, in = ParameterIn.HEADER, example = "ROLE_ADMIN")
             })
-    @PostMapping("/unban/{id}")
     @RoleCheck("ROLE_ADMIN")
+    @PostMapping("/unban/{id}")
     public ResponseEntity<?> unBanUser(@PathVariable Long id) {
         userService.unBanUser(id);
         return ResponseEntity.ok("User has been unbanned!");
