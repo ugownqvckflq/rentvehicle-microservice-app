@@ -29,7 +29,13 @@ public class CardServiceImpl implements CardService {
     private String encryptionSalt;
 
 
+    @Override
+    public Boolean cardExists(Long userId) {
+        return cardRepository.existsByUserId(userId);
+    }
+
     @Transactional
+    @Override
     public void addCard(Long userId, CardRequest cardRequest) {
         Optional<Card> existingCard = cardRepository.findByCardNumber(cardRequest.getCardNumber());
         if (existingCard.isPresent()) {
@@ -50,12 +56,14 @@ public class CardServiceImpl implements CardService {
         return Encryptors.text(encryptionPassword, encryptionSalt).encrypt(cvv);
     }
 
+    @Override
     public Card getCardByUserId(Long userId) {
         return cardRepository.findByUserId(userId)
                 .orElseThrow(() -> new CardNotFoundException("Card not found for user: " + userId));
     }
 
     @Transactional
+    @Override
     public void addFunds(Long userId, BigDecimal amount) {
         Card card = getCardByUserId(userId);
         card.setBalance(card.getBalance().add(amount));
@@ -63,6 +71,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Transactional
+    @Override
     public void deductFunds(Long userId, BigDecimal amount) {
         Card card = getCardByUserId(userId);
         if (card.getBalance().compareTo(amount) < 0) {
@@ -72,6 +81,7 @@ public class CardServiceImpl implements CardService {
         cardRepository.save(card);
     }
 
+    @Override
     public BigDecimal getBalance(Long userId) {
         Card card = getCardByUserId(userId);
         return card.getBalance();

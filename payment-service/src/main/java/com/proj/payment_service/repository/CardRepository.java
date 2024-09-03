@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<Card> findByUserId(Long userId);
     Optional<Card> findByCardNumber(String cardNumber);
+    boolean existsByUserId(Long userId);
 }

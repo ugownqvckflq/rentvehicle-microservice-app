@@ -35,6 +35,10 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     public void processRental(Rental rental) {
+        // Проверка наличия карты у пользователя
+        Card card = cardRepository.findByUserId(rental.getUserId())
+                .orElseThrow(() -> new CardNotFoundException("Card not found for user: " + rental.getUserId()));
+
         // Найти транспорт по ID
         Vehicle vehicle = vehicleRepository.findById(rental.getVehicleId())
                 .orElseThrow(() ->  new VehicleNotFoundException("Vehicle not found for ID: " + rental.getVehicleId()));

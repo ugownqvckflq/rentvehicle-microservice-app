@@ -4,12 +4,14 @@ import com.project.rental_microservice.dto.VehicleDto;
 import com.project.rental_microservice.entity.Rental;
 import com.project.rental_microservice.dto.requests.RentalRequest;
 import com.project.rental_microservice.dto.requests.ReturnRequest;
+import com.project.rental_microservice.exceptions.CardCheckException;
 import com.project.rental_microservice.exceptions.RentalNotFoundException;
 import com.project.rental_microservice.exceptions.VehicleNotFoundException;
 import com.project.rental_microservice.exceptions.VehicleUnavailableException;
 import com.project.rental_microservice.repository.RentalRepository;
 import com.project.rental_microservice.config.kafka.KafkaProducerService;
 import com.project.rental_microservice.service.jwt.JwtUtils;
+import com.project.rental_microservice.webclient.CardsServiceClient;
 import com.project.rental_microservice.webclient.VehicleServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,11 +27,15 @@ public class RentalServiceImpl implements RentalService {
     private final VehicleServiceClient vehicleServiceClient;
     private final RentalRepository rentalRepository;
     private final KafkaProducerService kafkaProducerService;
-
+    private final CardsServiceClient cardsServiceClient;
 
 
     @Override
     public Rental rentVehicle(Long userId, RentalRequest rentalRequest, String jwtToken) {
+
+        if (!cardsServiceClient.checkCardExists(userId)) {
+            throw new CardCheckException("User does not have a valid payment card.");
+        }
         // Получение информации о транспортном средстве по номеру
         VehicleDto vehicle = vehicleServiceClient.getVehicleByLicensePlate(rentalRequest.getLicensePlate(), jwtToken)
                 .blockOptional()

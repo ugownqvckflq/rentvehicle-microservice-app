@@ -81,4 +81,17 @@ public class PaymentController {
         BigDecimal balance = cardService.getBalance(userId);
         return ResponseEntity.ok(new BalanceResponse(balance, LocalDateTime.now()));
     }
+
+    @Operation(summary = "Проверить наличие карты у пользователя",
+            description = "Проверяет, существует ли карта у пользователя по его ID.",
+            parameters = {
+                    @Parameter(name = "X-User-Id", description = "Идентификатор пользователя", required = true, in = ParameterIn.HEADER, example = "123")
+            })
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> checkCardExists(HttpServletRequest request) {
+        Long userId = CardService.extractUserIdFromHeader(request);
+        boolean exists = cardService.cardExists(userId);
+        return ResponseEntity.ok(exists);
+    }
+
 }

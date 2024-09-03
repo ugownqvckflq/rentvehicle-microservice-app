@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 
 public interface CardService {
 
+    Boolean cardExists(Long userId);
+
     void addCard(Long userId, CardRequest cardRequest);
 
     Card getCardByUserId(Long userId);
